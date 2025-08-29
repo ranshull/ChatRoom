@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{ group.name }} Chat</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'core/styles.css' %}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px auto;
+            max-width: 1000px;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            height: 80vh;
+        }
+
+        .chat-column {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .messages-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .send-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        textarea {
+            flex-grow: 1;
+            resize: none;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #aaa;
+        }
+
+        button.send-btn {
+            padding: 8px 12px;
+            background: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Dropdown container */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Dropdown content (hidden by default) */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            bottom: 40px;
+            background-color: white;
+            min-width: 160px;
+            border: 1px solid #ccc;
+            z-index: 1;
+            border-radius: 5px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Dropdown links */
+        .dropdown-content button {
+            width: 100%;
+            padding: 8px 12px;
+            text-align: left;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+
+        .dropdown-content button:hover {
+            background-color: #f2f2f2;
+        }
+
+        /* Show dropdown on click */
+        .dropdown.show .dropdown-content {
+            display: block;
+        }
+
+        /* Right Sidebar */
+        .resources-column {
+            flex: 1;
+            border: 1px solid #ccc;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>{{ group.name }}</h1>
+    <div class="container">
+        <div class="chat-column">
+            <div class="messages-list" id="messages">
+                {% for message in messages %}
+                <div><strong>{{ message.sender.username }}:</strong> {{ message.content }} <em>({{message.timestamp|date:"M d, Y h:i A" }})</em></div>
+                {% empty %}
+                <div>No messages yet.</div>
+                {% endfor %}
+            </div>
+
+            <!-- Send form and dropdown -->
+            <form method="post" action="" style="width: 100%;" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="send-area">
+                    {{ message_form.content }}
+                    <button type="submit" name="send_message" class="send-btn">Send</button>
+
+                    <div class="dropdown" id="dropdown">
+                        <button type="button" class="send-btn" onclick="toggleDropdown()">+</button>
+                        <div class="dropdown-content" id="dropdown-content">
+                            <button type="button" onclick="showPDFUpload()">Upload PDF</button>
+                            <button type="button" onclick="showDoubtForm()">Submit Doubt</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Hidden forms for PDF upload and doubt submission -->
+            <div id="pdf-upload-form" style="display:none; margin-top: 10px;">
+                <h3>Upload PDF</h3>
+                <form method="post" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <label>Hashtag (e.g. #unit1):</label><br />
+                    <input type="text" name="pdf_hashtag" placeholder="#unit1" required /><br /><br />
+                    <input type="file" name="pdf_file" required /><br /><br />
+                    <button type="submit" name="upload_pdf" class="send-btn">Upload</button>
+                    <button type="button" onclick="hideForms()">Cancel</button>
+                </form>
+            </div>
+
+            <div id="doubt-form" style="display:none; margin-top: 10px;">
+                <h3>Submit Doubt</h3>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <label>Hashtag (e.g. #unit1):</label><br />
+                    <input type="text" name="doubt_hashtag" placeholder="#unit1" required /><br /><br />
+                    <textarea name="doubt_content" rows="3" placeholder="Write your doubt here..."
+                        required></textarea><br />
+                    <button type="submit" name="submit_doubt" class="send-btn">Submit</button>
+                    <button type="button" onclick="hideForms()">Cancel</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="resources-column">
+            <h2>Notes / PDFs</h2>
+            {% regroup pdfs by hashtag as pdf_hashtag_list %}
+            <ul>
+                {% for group in pdf_hashtag_list %}
+                <li><strong>{{ group.grouper }}</strong>
+                    <ul>
+                        {% for pdf in group.list %}
+                        <li><a href="{{ pdf.file.url }}">{{ pdf.file.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
+
+            <h2>Unresolved Doubts (Teacher view)</h2>
+            {% regroup doubts by hashtag as doubts_by_hashtag %}
+            <ul>
+                {% for group in doubts_by_hashtag %}
+                <li><strong>{{ group.grouper }}</strong>
+                    <ul>
+                        {% for doubt in group.list %}
+                        {% if not doubt.is_resolved %}
+                        {% if request.user.is_staff %}
+                        <form method="post" action="{% url 'resolve_doubt' doubt.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" style="font-size:10px; padding:2px 6px;">Mark as Resolved</button>
+                        </form>
+                        {% else %}
+                        <span style="font-size:12px; color:orange;">Unresolved</span>
+                        {% endif %}
+                        {% else %}
+                        <span style="color:green; font-weight:bold;">Resolved</span>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
+
+        </div>
+    </div>
+
+    <script>
+        function toggleDropdown() {
+            document.getElementById("dropdown").classList.toggle("show");
+        }
+        window.onclick = function (event) {
+            if (!event.target.matches('#dropdown button')) {
+                var dropdowns = document.getElementsByClassName("dropdown");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    dropdowns[i].classList.remove('show');
+                }
+            }
+        }
+        function showPDFUpload() {
+            hideForms();
+            document.getElementById("pdf-upload-form").style.display = "block";
+        }
+        function showDoubtForm() {
+            hideForms();
+            document.getElementById("doubt-form").style.display = "block";
+        }
+        function hideForms() {
+            document.getElementById("pdf-upload-form").style.display = "none";
+            document.getElementById("doubt-form").style.display = "none";
+        }
+    </script>
+</body>
+
+</html>
+
+
+
+
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{ group.name }} Chat</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'core/styles.css' %}">
+    <style>
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .chat-column {
+            flex: 2;
+            border: 1px solid #ddd;
+            padding: 15px;
+            background: white;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .resources-column {
+            flex: 1;
+            border: 1px solid #ddd;
+            padding: 15px;
+            background: white;
+            height: 80vh;
+            overflow-y: auto;
+        }
+
+        .messages-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        form {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+
+
+    <h1>{{ group.name }}</h1>
+    <div class="container">
+        <div class="chat-column">
+            <h2>Messages</h2>
+            <ul class="messages-list" id="messages">
+                {% for message in messages %}
+                <li><strong>{{ message.sender.username }}:</strong> {{ message.content }} <em>({{ message.timestamp}})</em></li>
+                {% empty %}
+                <li>No messages yet.</li>
+                {% endfor %}
+            </ul>
+
+            <form method="post" action="">
+                {% csrf_token %}
+                <h3>Send Message</h3>
+                {{ message_form.as_p }}
+                <button type="submit" name="send_message">Send</button>
+            </form>
+        </div>
+
+        <div class="resources-column">
+            <h2>PDF Files</h2>
+            <ul>
+                {% for pdf in pdfs %}
+                <li><a href="{{ pdf.file.url }}">{{ pdf.file.name }}</a></li>
+                {% empty %}
+                <li>No PDF files uploaded.</li>
+                {% endfor %}
+            </ul>
+
+            <form method="post" action="" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h3>Upload PDF</h3>
+                {{ pdf_form.as_p }}
+                <button type="submit" name="upload_pdf">Upload</button>
+            </form>
+
+            <h2>Doubts</h2>
+            <ul>
+                {% for doubt in doubts %}
+                <li>
+                    {{ doubt.question }} - Asked by {{ doubt.asked_by.username }} - Resolved: {{ doubt.is_resolved }}
+                    {% if not doubt.is_resolved %}
+                   
+                    <form method="post" action="{% url 'resolve_doubt' doubt.id %}" style="display:inline">
+                        {% csrf_token %}
+                        <button type="submit" style="font-size:10px; padding:2px 6px;">Mark as Resolved</button>
+                    </form>
+                    {% endif %}
+                </li>
+                {% empty %}
+                <li>No doubts submitted.</li>
+                {% endfor %}
+            </ul>
+
+
+            <form method="post" action="">
+                {% csrf_token %}
+                <h3>Submit Doubt</h3>
+                {{ doubt_form.as_p }}
+                <button type="submit" name="submit_doubt">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const groupId = "{{ group.id }}";
+        const username = "{{ request.user.username }}";
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host +
+            '/ws/chat/' + groupId + '/'
+        );
+
+        chatSocket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            const messageList = document.querySelector('#messages');
+            const messageItem = document.createElement('li');
+            messageItem.textContent = `${data.sender}: ${data.message}`;
+            messageList.appendChild(messageItem);
+        };
+
+        chatSocket.onclose = function (e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function (e) {
+            if (e.keyCode === 13) {  // Enter key
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function (e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                'message': message,
+                'sender': username
+            }));
+            messageInputDom.value = '';
+        };
+    </script>
+
+
+
+
+</body>
+
+</html> -->
