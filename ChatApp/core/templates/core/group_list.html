@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Groups</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'core/styles.css' %}">
+
+</head>
+
+<body>
+    <h1>Groups</h1>
+    <ul>
+        {% for group in groups %}
+        <li><a href="{% url 'group_detail' group.id %}">{{ group.name }}</a></li>
+        {% empty %}
+        <li>No groups available.</li>
+        {% endfor %}
+    </ul>
+</body>
+
+</html>
