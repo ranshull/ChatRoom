@@ -1,0 +1,9 @@
+{% if success %}
+    <p>Your information has been saved. You can fill the form again below.</p>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Submit</button>
+</form>

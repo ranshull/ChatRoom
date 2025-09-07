@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User, Group
 from django.db import models
+from django import forms
+# from .models import UserProfile
 
 class Message(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='messages')
@@ -30,7 +32,15 @@ class Doubt(models.Model):
 
 
 
-    def __str__(self):
-        return f'Doubt by {self.asked_by} in {self.group.name} - Resolved: {self.is_resolved}'
+class UserProfile(models.Model):
+    USER_TYPE_CHOICES = (
+        ('student', 'Student'),
+        ('teacher', 'Teacher'),
+    )
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_type = models.CharField(max_length=7, choices=USER_TYPE_CHOICES)
+    college_id = models.CharField(max_length=50)
+
+
 
 # Create your models here.
