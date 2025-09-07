@@ -5,6 +5,12 @@ from django.shortcuts import redirect
 from .forms import MessageForm, PDFUploadForm, DoubtForm
 from django.http import HttpResponseForbidden
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import UserProfileForm
+from .models import UserProfile
+
+
 def group_list(request):
     groups = Group.objects.all()
     return render(request, 'core/group_list.html', {'groups': groups})
@@ -115,3 +121,22 @@ def resolve_doubt(request, doubt_id):
     doubt.is_resolved = True
     doubt.save()
     return redirect('group_detail', group_id=doubt.group.id)
+
+
+@login_required
+def user_type_view(request):
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST)
+        if form.is_valid():
+            profile = form.save(commit=False)
+            profile.user = request.user
+            profile.save()
+            success = True  # indicate success to template
+            form = UserProfileForm()  # reset form blank for another entry
+        else:
+            success = False
+    else:
+        form = UserProfileForm()
+        success = False
+        
+    return render(request, 'user_type.html', {'form': form, 'success': success})
