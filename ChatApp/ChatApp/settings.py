@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'daphne',
     'django.contrib.staticfiles',
     'core',
+    'Users',
     'channels',
     'django.contrib.sites',
     'allauth',
@@ -47,8 +48,19 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     
 ]
-SITE_ID = 1
+SITE_ID = 2
 ASGI_APPLICATION = "ChatApp.asgi.application"
+
+SOCIALACCOUNT_PROVIDERS={
+    "google":{
+        "SCOPE":[
+            "profile",
+            "email"
+        ],
+        "AUTH_PARAMS": {"access_type":"online"}
+
+    }
+}
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -70,7 +82,8 @@ ROOT_URLCONF = 'ChatApp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
+
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -95,11 +108,7 @@ DATABASES = {
     }
 }
 
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-)
-LOGIN_REDIRECT_URL = '/user-type/'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -154,3 +163,11 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 DEBUG = True
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+# LOGIN_REDIRECT_URL = '/user-type/' FOR PERIVIOUS ONE
+LOGIN_REDIRECT_URL = "/"
+LOGOUTREDIRECT_URL = "/"
