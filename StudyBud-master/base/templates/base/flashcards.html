@@ -1,0 +1,79 @@
+{% extends 'main.html' %}
+{% block content %}
+<style>
+.flashcards {
+    max-width: 1000px;
+    margin: 20px auto;
+}
+
+.original-message {
+    background-color: #6a1b4d; /* dark maroon */
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* space between cards */
+}
+
+.flashcard {
+    background-color: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 12px;
+    padding: 20px;
+    width: 250px; /* fixed width for card */
+    height: 150px; /* fixed height for uniformity */
+    box-shadow: 2px 4px 10px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: 500;
+    font-size: 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.flashcard:hover {
+    transform: translateY(-5px);
+    box-shadow: 4px 8px 15px rgba(0,0,0,0.3);
+}
+
+.btn {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 10px 18px;
+    background-color: #6a1b4d; /* dark maroon */
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.btn:hover {
+    background-color: #831e5e;
+    transform: scale(1.05);
+}
+</style>
+
+<div class="flashcards">
+    <p class="original-message"><strong>Original Message:</strong> {{ message.body }}</p>
+
+    <div class="cards-container">
+        {% for card in flashcards %}
+            <div class="flashcard">
+                {{ card }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <a href="{% url 'room' message.room.id %}" class="btn">⬅ Back to Room</a>
+</div>
+
+{% endblock %}
