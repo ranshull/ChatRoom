@@ -38,6 +38,11 @@
     font-weight: 500;
     font-size: 16px;
     transition: transform 0.2s, box-shadow 0.2s;
+
+    word-wrap: break-word;           /* allows breaking long words */
+    overflow: hidden;                /* hides overflow if too long */
+    text-overflow: ellipsis;         /* adds ... if text still overflows */
+    hyphens: auto; 
 }
 
 .flashcard:hover {

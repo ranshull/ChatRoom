@@ -162,7 +162,7 @@ def home(request):
 #         'hashtags': sorted(all_tags),
 #     }
 #     return render(request, 'base/room.html', context)
-
+@login_required(login_url='login')
 def room(request, pk):
     room = Room.objects.get(id=pk)
     room_messages = room.message_set.all()
@@ -296,13 +296,13 @@ def updateUser(request):
 
     return render(request, 'base/update-user.html', {'form': form})
 
-
+@login_required(login_url='login')
 def topicsPage(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     topics = Topic.objects.filter(name__icontains=q)
     return render(request, 'base/topics.html', {'topics': topics})
 
-
+@login_required(login_url='login')
 def activityPage(request):
     room_messages = Message.objects.all()
     return render(request, 'base/activity.html', {'room_messages': room_messages})
@@ -362,7 +362,7 @@ client = genai.Client(api_key=os.environ["API_KEY"])
 #         "flashcards": flashcards
 #     })
 
-
+@login_required(login_url='login')
 def generate_flashcard(request, message_id):
     message = get_object_or_404(Message, id=message_id)
     input_text = message.body
