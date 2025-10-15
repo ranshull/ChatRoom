@@ -417,6 +417,26 @@ def generate_flashcard(request, message_id):
 # in views.py
 
 
+# @login_required(login_url='login')
+# @require_POST
+# def add_hashtag(request, message_id):
+#     message = get_object_or_404(Message, id=message_id)
+#     if request.user != message.user:
+#         return HttpResponse('You are not allowed to tag this message.')
+
+#     new_tag = request.POST.get('hashtag', '').strip()
+#     if not new_tag.startswith('#'):
+#         new_tag = f'#{new_tag}'
+
+#     # Append to existing hashtags
+#     existing_tags = message.hashtag_list()
+#     if new_tag not in existing_tags:
+#         existing_tags.append(new_tag)
+#         message.hashtags = " ".join(existing_tags)
+#         message.save()
+
+#     return redirect('room', pk=message.room.id)
+
 @login_required(login_url='login')
 @require_POST
 def add_hashtag(request, message_id):
@@ -424,13 +444,16 @@ def add_hashtag(request, message_id):
     if request.user != message.user:
         return HttpResponse('You are not allowed to tag this message.')
 
+    # Get user input and clean it
     new_tag = request.POST.get('hashtag', '').strip()
-    if not new_tag.startswith('#'):
-        new_tag = f'#{new_tag}'
+
+    # ✅ Remove # if user typed it by mistake
+    if new_tag.startswith('#'):
+        new_tag = new_tag[1:]
 
     # Append to existing hashtags
     existing_tags = message.hashtag_list()
-    if new_tag not in existing_tags:
+    if new_tag and new_tag not in existing_tags:
         existing_tags.append(new_tag)
         message.hashtags = " ".join(existing_tags)
         message.save()
