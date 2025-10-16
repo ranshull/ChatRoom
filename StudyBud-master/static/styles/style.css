@@ -16,13 +16,13 @@
  :root {
   --color-main: #0d47a1;          /* Dark Blue */
   --color-main-light: #5472d3;    /* Lighter Blue Shade */
-  --color-dark: #2c003e;          /* Deep Maroonish Purple */
+  --color-dark: #780aa3;          /* Deep Maroonish Purple */
   --color-dark-medium: #4a0e4e;   /* Medium Maroon */
   --color-dark-light: #6a1b4d;    /* Light Maroon */
   --color-light: #e6e6e6;         /* Neutral Light */
   --color-gray: #8c8c8c;          /* Standard Gray */
   --color-light-gray: #b3b3b3;    /* Light Gray */
-  --color-bg: #0a0a23;            /* Very Dark Blue Background */
+  --color-bg: #1815bb;            /* Very Dark Blue Background */
   --color-success: #4caf50;       /* Green for success */
   --color-error: #c62828;         /* Maroonish Red for error */
 }
