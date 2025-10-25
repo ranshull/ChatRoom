@@ -107,6 +107,11 @@ class Message(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     body = models.TextField()
     hashtags = models.CharField(max_length=500, blank=True)  # stores hashtags as space-separated text
+
+    # Add new fields
+    image = models.ImageField(upload_to='message_images/', blank=True, null=True)
+    pdf = models.FileField(upload_to='message_pdfs/', blank=True, null=True)
+
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 

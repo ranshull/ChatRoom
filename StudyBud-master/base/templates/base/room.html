@@ -185,6 +185,48 @@ input[name="hashtag"]::placeholder {
 }
 
 
+/* pdfs and images */
+.thread__image {
+  max-width: 250px;
+  border-radius: 10px;
+  margin-top: 8px;
+}
+
+.thread__pdfLink {
+  display: inline-block;
+  margin-top: 5px;
+  color: var(--color-main);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.thread__image {
+    display: block;            /* keeps it block-level like <p> */
+    margin-block-start: 1em;   /* top margin */
+    margin-block-end: 1em;     /* bottom margin */
+    margin-inline-start: 0;    
+    margin-inline-end: 0;
+    unicode-bidi: isolate;
+
+    width: 100%;               /* make image expand to container width */
+    max-width: 700px;            /*optional: limits the max width */
+    height: auto;              /* keeps aspect ratio */
+    border-radius: 8px;        /* optional: rounded corners */
+    border: 1px solid #ccc;    /* optional: border like a text box */
+}
+
+
+
+.thread__pdfLink{
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: isolate;
+}
+
+
 </style>
 <main class="profile-page layout layout--2">
   <div class="container">
@@ -318,13 +360,56 @@ input[name="hashtag"]::placeholder {
               <!-- <div class="thread__details">
                 {{message.body}} 
               </div> -->
-              <div class="thread__details">
+
+<!-- this is now -->
+              <!-- <div class="thread__details">
               {% for tag in message.hashtag_list %}
                 <a href="?hashtag={{ tag }}" class="hashtag">{{ tag }}</a>
                 <a href="{% url 'edit_message_hashtags' message.id %}">✏️ Edit</a>
               {% endfor %}
+              
+              {% if message.image %}
+                <img src="{{ message.image.url }}" alt="Image" class="thread__image" />
+              {% endif %}
+
+              {% if message.pdf %}
+                <a href="{{ message.pdf.url }}" target="_blank" class="thread__pdfLink">📄 View PDF</a>
+              {% endif %}
+
               <p>{{ message.body|safe }}</p>
+              
+
+             
+              </div> -->
+              <div class="thread__details">
+                {% for tag in message.hashtag_list %}
+                  <a href="?hashtag={{ tag }}" class="hashtag">{{ tag }}</a>
+                  <a href="{% url 'edit_message_hashtags' message.id %}">✏️ Edit</a>
+                {% endfor %}
+                
+                {% if message.image %}
+                  <img src="{{ message.image.url }}" alt="Image" class="thread__image" />
+                {% endif %}
+
+               {% if message.pdf %}
+              <div class="thread__pdfPreview" style="display:flex; align-items:center; gap:8px; background:#9acdc9; padding:6px 10px; border-radius:6px; border:1px solid #ccc; margin:8px 0;">
+                <span style="font-size:24px;">📄</span>
+                <!-- <a href="{{ message.pdf.url }}" target="_blank" class="thread__pdfLink" style="font-size:16px;">📝</a> -->
+                <span style="flex:1; font-size:14px; word-break:break-all; color:#000;">
+                  <a href="{{ message.pdf.url }}" target="_blank" class="thread__pdfLink" style=" text-decoration: none; font-size:16px; color:#000;" >{{ message.pdf.name|slice:"10:" }}</a>
+                </span>
+                
+                <a href="{{ message.pdf.url }}" download 
+                  style="padding:4px 8px; background:#264653; color:#fff; border-radius:4px; text-decoration:none; font-size:12px;">
+                  Download
+                </a>
               </div>
+            {% endif %}
+
+
+                <p>{{ message.body|safe }}</p>
+              </div>
+
 
 
 
@@ -343,12 +428,104 @@ input[name="hashtag"]::placeholder {
         </div>
 
       </div>
-      <div class="room__message">
+      <!-- <div class="room__message">
         <form action="" method="POST">
-          {% csrf_token %}
+          {% csrf_token %}                                                       #working
           <input name="body" placeholder="Write your message here..." />
         </form>
+      </div> -->
+      <!-- <div class="room__message">
+        <form action="" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="text" name="body" placeholder="Write your message here..." />
+
+          <div class="upload__area">
+            <label for="image-upload" title="Upload Image">📷</label>
+            <input type="file" id="image-upload" name="image" accept="image/*" style="display:none;" />
+
+            <label for="pdf-upload" title="Upload PDF">📄</label>
+            <input type="file" id="pdf-upload" name="pdf" accept="application/pdf" style="display:none;" />
+          </div>
+
+          <button type="submit">Send</button>
+        </form>
+      </div> -->
+
+<!-- this is old but correct -->
+      <!-- <div class="room__message">
+        <form action="" method="POST" enctype="multipart/form-data" style="width:100%;">
+          {% csrf_token %}
+          <div class="message-input-wrapper" style="display:flex; align-items:center; gap:8px; width:100%;"> -->
+            
+            <!-- Text input -->
+            <!-- <input type="text" name="body" placeholder="Write your message here..." 
+                  style="flex:1; padding:10px 12px; border-radius:6px; border:1px solid #ccc; outline:none;" /> -->
+
+            <!-- Pin dropdown -->
+            <!-- <div class="pin-dropdown" style="position:relative;">
+              <button type="button" class="pin-btn" 
+                      style="padding:8px 10px; border:none; background:#eee; border-radius:6px; cursor:pointer;">📌</button> -->
+              
+              <!-- Dropdown menu -->
+              <!-- <div class="pin-menu" style="display:none; position:absolute; right:0; bottom:36px; background:#264653; 
+                                          border:1px solid #ccc; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.2); z-index:10;">
+                <label style="display:block; padding:8px 12px; cursor:pointer;">Photos
+                  <input type="file" name="image" accept="image/*" style="display:none;">
+                </label>
+                <label style="display:block; padding:8px 12px; cursor:pointer;">Documents
+                  <input type="file" name="pdf" accept="application/pdf" style="display:none;">
+                </label>
+              </div>
+            </div> -->
+
+            <!-- Send button -->
+            <!-- <button type="submit" 
+                    style="padding:8px 12px; border:none; background:#4fd1c5; color:white; border-radius:6px; cursor:pointer;">
+              Send
+            </button>
+          </div>
+        </form>
+      </div> -->
+
+      <div class="room__message">
+        <form action="" method="POST" enctype="multipart/form-data" style="width:100%;">
+          {% csrf_token %}
+          <div class="message-input-wrapper" style="display:flex; align-items:center; gap:8px; width:100%;">
+            
+            <!-- Text input -->
+            <input type="text" name="body" placeholder="Write your message here..." 
+                  style="flex:1; padding:10px 12px; border-radius:6px; border:1px solid #ccc; outline:none;" />
+
+            <!-- Pin dropup -->
+            <div class="pin-dropup" style="position:relative;">
+              <button type="button" class="pin-btn" 
+                      style="padding:8px 10px; border:none; background:#eee; border-radius:6px; cursor:pointer;">📌</button>
+              
+              <!-- Dropup menu -->
+              <div class="pin-menu" style="display:none; position:absolute; bottom:36px; right:0; background:#264653; 
+                                          border:1px solid #ccc; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.2); z-index:10;">
+                <label style="display:block; padding:8px 12px; cursor:pointer;">Photos
+                  <input type="file" id="image-upload" name="image" accept="image/*" style="display:none;">
+                </label>
+                <label style="display:block; padding:8px 12px; cursor:pointer;">Documents
+                  <input type="file" id="pdf-upload" name="pdf" accept="application/pdf" style="display:none;">
+                </label>
+              </div>
+            </div>
+
+            <!-- Display selected file name -->
+            <span id="file-name" style="font-size:13px; color:#000; background:#fff; padding:4px 8px; border-radius:6px; margin-left:4px; border:1px solid #ccc;">OCR</span>
+
+            <!-- Send button -->
+            <button type="submit" 
+                    style="padding:8px 12px; border:none; background:#4fd1c5; color:white; border-radius:6px; cursor:pointer;">
+              Send
+            </button>
+          </div>
+        </form>
       </div>
+
+
     </div>
     <!-- Room End -->
 
@@ -419,6 +596,127 @@ function openHashtagForm(id) {
     form.style.display = 'none';
   }
 }
+
+
+  // const pinBtn = document.querySelector('.pin-btn');
+  // const pinMenu = document.querySelector('.pin-menu');
+
+  // pinBtn.addEventListener('click', () => {
+  //   pinMenu.style.display = pinMenu.style.display === 'block' ? 'none' : 'block';
+  // });
+
+  // // Close dropdown if clicked outside
+  // document.addEventListener('click', (e) => {
+  //   if (!pinBtn.contains(e.target) && !pinMenu.contains(e.target)) {
+  //     pinMenu.style.display = 'none';
+  //   }
+  // });
+
+
+//   const pinBtn = document.querySelector('.pin-btn');
+// const pinMenu = document.querySelector('.pin-menu');
+// const imageInput = document.getElementById('image-upload');
+// const pdfInput = document.getElementById('pdf-upload');
+// const fileNameDisplay = document.getElementById('file-name');
+
+// // Toggle dropup menu
+// pinBtn.addEventListener('click', () => {
+//   pinMenu.style.display = pinMenu.style.display === 'block' ? 'none' : 'block';
+// });
+
+// // Close dropup if clicked outside
+// document.addEventListener('click', (e) => {
+//   if (!pinBtn.contains(e.target) && !pinMenu.contains(e.target)) {
+//     pinMenu.style.display = 'none';
+//   }
+// });
+
+// // Show selected file name for image
+// imageInput.addEventListener('change', () => {
+//   if (imageInput.files.length > 0) {
+//     fileNameDisplay.textContent = imageInput.files[0].name;
+//   } else {
+//     fileNameDisplay.textContent = '';
+//   }
+// });
+
+// // Show selected file name for PDF
+// pdfInput.addEventListener('change', () => {
+//   if (pdfInput.files.length > 0) {
+//     fileNameDisplay.textContent = pdfInput.files[0].name;
+//   } else {
+//     fileNameDisplay.textContent = '';
+//   }
+// });
+
+
+const pinBtn = document.querySelector('.pin-btn');
+const pinMenu = document.querySelector('.pin-menu');
+const imageInput = document.getElementById('image-upload');
+const pdfInput = document.getElementById('pdf-upload');
+const fileNameDisplay = document.getElementById('file-name');
+
+// Toggle dropup menu
+pinBtn.addEventListener('click', () => {
+  pinMenu.style.display = pinMenu.style.display === 'block' ? 'none' : 'block';
+});
+
+// Close dropup if clicked outside
+document.addEventListener('click', (e) => {
+  if (!pinBtn.contains(e.target) && !pinMenu.contains(e.target)) {
+    pinMenu.style.display = 'none';
+  }
+});
+
+// Function to show selected file name with remove button
+function showFileName(file, inputElement) {
+  fileNameDisplay.innerHTML = ''; // clear previous content
+
+  const wrapper = document.createElement('div');
+  wrapper.style.display = 'inline-flex';
+  wrapper.style.alignItems = 'center';
+  wrapper.style.gap = '8px';
+  wrapper.style.background = '#fff';
+  wrapper.style.padding = '4px 8px';
+  wrapper.style.borderRadius = '6px';
+  wrapper.style.border = '1px solid #ccc';
+
+  const nameSpan = document.createElement('span');
+  nameSpan.textContent = file.name;
+  nameSpan.style.color = '#000';
+  wrapper.appendChild(nameSpan);
+
+  const removeBtn = document.createElement('span');
+  removeBtn.textContent = '✖';
+  removeBtn.style.cursor = 'pointer';
+  removeBtn.style.color = '#f00';
+  removeBtn.style.fontWeight = 'bold';
+  removeBtn.addEventListener('click', () => {
+    inputElement.value = ''; // clear file input
+    fileNameDisplay.innerHTML = 'OCR'; // remove display
+  });
+  wrapper.appendChild(removeBtn);
+
+  fileNameDisplay.appendChild(wrapper);
+}
+
+// Show selected file name for image
+imageInput.addEventListener('change', () => {
+  if (imageInput.files.length > 0) {
+    showFileName(imageInput.files[0], imageInput);
+  } else {
+    fileNameDisplay.innerHTML = '';
+  }
+});
+
+// Show selected file name for PDF
+pdfInput.addEventListener('change', () => {
+  if (pdfInput.files.length > 0) {
+    showFileName(pdfInput.files[0], pdfInput);
+  } else {
+    fileNameDisplay.innerHTML = '';
+  }
+});
 
 </script>
 
