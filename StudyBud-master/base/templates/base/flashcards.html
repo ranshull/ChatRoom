@@ -1,6 +1,6 @@
 {% extends 'main.html' %}
 {% block content %}
-<style>
+<!-- <style>
 .flashcards {
     max-width: 1000px;
     margin: 20px auto;
@@ -65,7 +65,73 @@
     background-color: #831e5e;
     transform: scale(1.05);
 }
+</style> -->
+
+<style>
+.flashcards {
+    max-width: 1000px;
+    margin: 20px auto;
+}
+
+.original-message {
+    background-color: #6a1b4d; /* dark maroon */
+    color: #fff;
+    padding: 16px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* space between cards */
+}
+
+.flashcard {
+    background-color: #fff;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 12px;
+    padding: 20px;
+    min-width: 200px;      /* minimum width */
+    max-width: 300px;      /* maximum width */
+    box-shadow: 2px 4px 10px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1.4;
+    transition: transform 0.2s, box-shadow 0.2s;
+    word-wrap: break-word;
+    hyphens: auto; 
+}
+
+.flashcard:hover {
+    transform: translateY(-5px);
+    box-shadow: 4px 8px 15px rgba(0,0,0,0.3);
+}
+
+.btn {
+    display: inline-block;
+    margin-top: 25px;
+    padding: 12px 20px;
+    background-color: #6a1b4d; /* dark maroon */
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.btn:hover {
+    background-color: #831e5e;
+    transform: scale(1.05);
+}
 </style>
+
 
 <div class="flashcards">
     <p class="original-message"><strong>Original Message:</strong> {{ message.body }}</p>
