@@ -44,6 +44,24 @@
 
 // Menu
 
+// document.addEventListener("DOMContentLoaded", function() {
+//   const toggleBtn = document.getElementById("theme-toggle");
+//   const body = document.body;
+
+//     // Check localStorage for saved theme
+//   if (localStorage.getItem("theme") === "light") {
+//     body.classList.add("light-theme");
+//     toggleBtn.textContent = "☀️";
+//   }
+  
+//   toggleBtn.addEventListener("click", () => {
+//     body.classList.toggle("light-theme");
+//     const isLight = body.classList.contains("light-theme");
+//     toggleBtn.textContent = isLight ? "☀️" : "🌙";
+//     localStorage.setItem("theme", isLight ? "light" : "dark");
+//   });
+// });
+
 const dropdownMenu = document.querySelector(".dropdown-menu");
 const dropdownButton = document.querySelector(".dropdown-button");
 

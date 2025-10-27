@@ -28,6 +28,8 @@ import fitz
 #     {'id': 3, 'name': 'Frontend developers'},
 # ]
 
+def dashboard_view(request):
+    return render(request, 'base/index.html')
 
 def loginPage(request):
     page = 'login'
@@ -96,7 +98,7 @@ def registerPage(request):
     return render(request, 'base/login_register.html', {'form': form})
 
 
-
+@login_required(login_url='login')
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
 

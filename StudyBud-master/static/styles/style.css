@@ -15,18 +15,27 @@
 } */
  
 :root {
-  --color-main: #4fd1c5;           /* Soft teal / cyan-green main */
-  --color-main-light: #d9f7f4;     /* Very light mint background */
-  --color-dark: #264653;           /* Deep teal-blue for contrast */
-  --color-dark-medium: #356b73;    /* Muted sea green */
-  --color-dark-light: #4a8a8a;     /* Gentle cyan-gray */
-  --color-light: #e6f7f5;          /* Pale aqua surface */
-  --color-gray: #8ca8a8;           /* Cool gray-green */
-  --color-light-gray: #b9d4d1;     /* Light minty-gray */
-  --color-bg: #1f2f32;             /* Desaturated dark teal background */
-  --color-success: #6de2b4;        /* Fresh mint green */
-  --color-error: #f47174;          /* Soft coral for contrast */
+  --color-main: #4fd1c5;
+  --color-main-light: #d9f7f4;
+  --color-dark: #264653;
+  --color-dark-medium: #356b73;
+  --color-dark-light: #4a8a8a;
+  --color-light: #e6f7f5;
+  --color-gray: #8ca8a8;
+  --color-light-gray: #b9d4d1;
+  --color-bg: #1f2f32;
+  --color-success: #6de2b4;
+  --color-error: #f47174;
 }
+
+
+
+
+
+
+
+
+
 
 
 
