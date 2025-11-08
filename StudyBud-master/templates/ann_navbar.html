@@ -1,0 +1,100 @@
+{% load static %}
+
+<nav class="navbar {% block navbar_class %}navbar-default{% endblock %}">
+    <div class="navbar-container">
+        <!-- Logo Section - Can be overridden -->
+        <div class="navbar-logo">
+            {% block navbar_logo %}
+            <a href="{% url 'home' %}" class="logo-link">
+                <div class="logo-icon">
+                    <span>🚀</span>
+                </div>
+                <span class="logo-text">Django Nav</span>
+            </a>
+            {% endblock %}
+        </div>
+
+        <!-- Desktop Navigation Links - Can be extended -->
+        <div class="navbar-links">
+            {% block navbar_links %}
+            <a href="" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                Home
+            </a>
+            <a href="" class="nav-link {% if request.resolver_match.url_name == 'features' %}active{% endif %}">
+                Features
+            </a>
+            <a href="" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">
+                About
+            </a>
+            <a href="" class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">
+                Contact
+            </a>
+            {% endblock %}
+        </div>
+
+        <!-- Action Buttons - Can be overridden -->
+        <div class="navbar-actions">
+            {% block navbar_actions %}
+            {% if user.is_authenticated %}
+                <a href="" class="btn btn-ghost">
+                    {{ user.username }}
+                </a>
+                <a href="" class="btn btn-primary">
+                    Logout
+                </a>
+            {% else %}
+                <a href="" class="btn btn-ghost">
+                    Sign In
+                </a>
+                <a href="" class="btn btn-primary">
+                    Get Started
+                </a>
+            {% endif %}
+            {% endblock %}
+        </div>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
+            <span class="hamburger"></span>
+        </button>
+    </div>
+
+    <!-- Mobile Menu - Can be extended -->
+    <div class="mobile-menu" id="mobileMenu">
+        {% block mobile_menu %}
+        <div class="mobile-links">
+            <a href="" class="mobile-link">Home</a>
+            <a href="" class="mobile-link">Features</a>
+            <a href="" class="mobile-link">About</a>
+            <a href="" class="mobile-link">Contact</a>
+        </div>
+        <div class="mobile-actions">
+            {% if user.is_authenticated %}
+                <a href="" class="btn btn-ghost btn-full">{{ user.username }}</a>
+                <a href="" class="btn btn-primary btn-full">Logout</a>
+            {% else %}
+                <a href="" class="btn btn-ghost btn-full">Sign In</a>
+                <a href="" class="btn btn-primary btn-full">Get Started</a>
+            {% endif %}
+        </div>
+        {% endblock %}
+    </div>
+
+    <!-- Extra navbar content slot -->
+    {% block navbar_extra %}{% endblock %}
+</nav>
+
+<script>
+// Mobile menu toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('mobileToggle');
+    const menu = document.getElementById('mobileMenu');
+    
+    if (toggle && menu) {
+        toggle.addEventListener('click', function() {
+            menu.classList.toggle('active');
+            toggle.classList.toggle('active');
+        });
+    }
+});
+</script>

@@ -1,0 +1,345 @@
+{% extends 'ann_main.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    body {
+        background-color: #f3f4f6;
+    }
+
+    .announcement-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 1rem;
+    }
+
+    .announcement-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .announcement-header h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+
+    /* Floating + Button */
+    .add-announcement-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: linear-gradient(135deg, #0066ff, #00ccff);
+        color: white;
+        border: none;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        font-size: 2rem;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+        transition: transform 0.2s, box-shadow 0.2s;
+        z-index: 999;
+    }
+
+    .add-announcement-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 102, 255, 0.4);
+    }
+
+    /* Post Card (Insta-style) */
+    .post-card {
+        background: white;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: transform 0.2s ease;
+    }
+
+    .post-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .post-header {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .post-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: #0066ff;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+
+    .post-user-info h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #1a1a2e;
+    }
+
+    .post-user-info p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .post-body {
+        padding: 1rem 1.2rem;
+    }
+
+    .post-body h4 {
+        margin-bottom: 0.5rem;
+        color: #1a1a2e;
+        font-size: 1.2rem;
+    }
+
+    .post-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.2rem;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+        color: #444;
+    }
+
+    .post-details span {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .post-actions {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.8rem 1.2rem 1rem;
+        border-top: 1px solid #eee;
+    }
+
+    .action-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        color: #0066ff;
+        font-weight: 600;
+        transition: color 0.2s;
+    }
+
+    .action-btn:hover {
+        color: #004bcc;
+    }
+
+    /* Modal Popup */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.55);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        animation: fadeIn 0.3s ease;
+        position: relative;
+    }
+
+    @keyframes fadeIn {
+        from { transform: scale(0.9); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 12px;
+        right: 15px;
+        font-size: 1.5rem;
+        color: #666;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    /* Interested Form */
+    .interested-form {
+        display: none;
+        padding: 1rem;
+        border-top: 1px solid #eee;
+        background: #f9fafc;
+    }
+
+    .form-group {
+        margin-bottom: 0.8rem;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.6rem;
+        border: 1.5px solid #ccc;
+        border-radius: 6px;
+    }
+
+    .form-submit {
+        margin-top: 0.5rem;
+        background: linear-gradient(135deg, #0066ff, #00ccff);
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+</style>
+
+
+<div class="announcement-container">
+    <div class="announcement-header">
+        <h1>📢 Announcements</h1>
+        <p>Stay updated with the latest campus news and events</p>
+    </div>
+
+    {% if announcements %}
+        {% for ann in announcements %}
+        <div class="post-card">
+            <!-- Header -->
+            <div class="post-header">
+                <div class="post-avatar">{{ ann.author.username|slice:":1"|upper }}</div>
+                <div class="post-user-info">
+                    <h3>{{ ann.author.username }}</h3>
+                    <p>{{ ann.created_at|date:"M d, Y" }} • {{ ann.school_name }}</p>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="post-body">
+                <h4>{{ ann.title }}</h4>
+                <div class="post-details">
+                    <span>📍 <strong>Venue:</strong> {{ ann.venue }}</span>
+                    <span>📅 <strong>Date:</strong> {{ ann.event_date }}</span>
+                    <span>🕒 <strong>Time:</strong> {{ ann.event_time }}</span>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="post-actions">
+                <button class="action-btn" onclick="openInfo('{{ ann.id }}')">ℹ️ Info</button>
+                <button class="action-btn" onclick="toggleInterested('{{ ann.id }}')">❤️ Interested</button>
+            </div>
+
+            <!-- Interested Form -->
+            <div class="interested-form" id="interested-{{ ann.id }}">
+                <form method="POST" action="{% url 'event_interest' ann.id %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="text" name="roll_no" placeholder="Roll Number" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="course" placeholder="Course" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" name="mobile" placeholder="Mobile Number" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" name="email" placeholder="Email ID" required>
+                    </div>
+                    <button type="submit" class="form-submit">Submit Interest</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info Modal -->
+        <div class="modal-overlay" id="infoModal-{{ ann.id }}">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeInfo('{{ ann.id }}')">&times;</button>
+                <h2>{{ ann.title }}</h2>
+                <p><strong>Venue:</strong> {{ ann.venue }}</p>
+                <p><strong>Date:</strong> {{ ann.event_date }}</p>
+                <p><strong>Time:</strong> {{ ann.event_time }}</p>
+                <p><strong>School:</strong> {{ ann.school_name }}</p>
+                <hr>
+                <p>{{ ann.content }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align:center; color:#888;">No announcements yet.</p>
+    {% endif %}
+</div>
+
+<!-- Floating Add Button -->
+<button class="add-announcement-btn" onclick="openModal()">+</button>
+
+<!-- Modal for Adding New Announcement -->
+<div class="modal-overlay" id="announcementModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <h2>Post New Announcement</h2>
+        <form method="POST" action="">
+            {% csrf_token %}
+            <div class="form-group"><input type="text" name="title" placeholder="Event Title" required></div>
+            <div class="form-group"><input type="text" name="venue" placeholder="Venue" required></div>
+            <div class="form-group"><input type="date" name="event_date" required></div>
+            <div class="form-group"><input type="time" name="event_time" required></div>
+            <div class="form-group"><input type="text" name="school_name" placeholder="School (e.g. SOET, SOED)" required></div>
+            <div class="form-group"><textarea name="content" placeholder="Event Description" required></textarea></div>
+            <button type="submit" class="form-submit">Post Announcement</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Modal for new post
+    const modal = document.getElementById('announcementModal');
+    function openModal() { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+    function closeModal() { modal.style.display = 'none'; document.body.style.overflow = 'auto'; }
+
+    // Info modal
+    function openInfo(id) {
+        document.getElementById(`infoModal-${id}`).style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeInfo(id) {
+        document.getElementById(`infoModal-${id}`).style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    // Interested Form Toggle
+    function toggleInterested(id) {
+        const form = document.getElementById(`interested-${id}`);
+        form.style.display = form.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Close on background click
+    window.onclick = function (e) {
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+    };
+</script>
+{% endblock %}
+
+
+

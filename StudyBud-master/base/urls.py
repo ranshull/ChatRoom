@@ -6,6 +6,11 @@ urlpatterns = [
     path('logout/', views.logoutUser, name="logout"),
     path('register/', views.registerPage, name="register"),
     path('', views.dashboard_view, name='dashboard'),
+    # path('announcement/', views.ann_home, name='ann_home'),
+    # urls.py
+    # path('event_interest/<int:ann_id>/', views.event_interest, name='event_interest'),
+    path('announcements/', views.announcements, name='announcements'),
+    path('event_interest/<int:ann_id>/', views.event_interest, name='event_interest'),
 
     path('home/', views.home, name="home"),
     path('room/<str:pk>/', views.room, name="room"),

@@ -146,3 +146,38 @@ class Message(models.Model):
     #     self.hashtags = " ".join(unique_tags)
     #     super().save(*args, **kwargs)
 
+# class Announcement(models.Model):
+#     author = models.ForeignKey(User, on_delete=models.CASCADE)
+#     title = models.CharField(max_length=200)
+#     content = models.TextField()
+#     venue = models.CharField(max_length=100)
+#     event_date = models.DateField()
+#     event_time = models.TimeField()
+#     school_name = models.CharField(max_length=50)
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Announcement(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    venue = models.CharField(max_length=100)
+    event_date = models.DateField()
+    event_time = models.TimeField()
+    school_name = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
+class EventInterest(models.Model):
+    announcement = models.ForeignKey(Announcement, on_delete=models.CASCADE, related_name="interests")
+    roll_no = models.CharField(max_length=20)
+    course = models.CharField(max_length=100)
+    mobile = models.CharField(max_length=15)
+    email = models.EmailField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.roll_no} - {self.announcement.title}"

@@ -14,8 +14,9 @@ from google import genai
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.contrib.auth import authenticate, login, logout
-from .models import Room, Topic, Message, User
+from .models import Room, Topic, Message, User, Announcement, EventInterest
 from .forms import RoomForm, UserForm, MyUserCreationForm
+from django.contrib import messages
 
 import pytesseract
 import fitz 
@@ -30,6 +31,52 @@ import fitz
 
 def dashboard_view(request):
     return render(request, 'base/index.html')
+
+#announcemnt
+
+
+# def ann_home(request):
+#     return render(request, 'base/announcement.html' )
+
+# views.py
+# def event_interest(request, ann_id):
+#     if request.method == 'POST':
+#         roll_no = request.POST['roll_no']
+#         course = request.POST['course']
+#         mobile = request.POST['mobile']
+#         email = request.POST['email']
+#         # save interest or send notification etc.
+#         messages.success(request, "Your interest has been recorded.")
+#         return redirect('announcements')
+def announcements(request):
+    announcements = Announcement.objects.all().order_by('-created_at')
+    return render(request, 'base/announcement.html', {'announcements': announcements})
+
+def event_interest(request, ann_id):
+    if request.method == 'POST':
+        announcement = get_object_or_404(Announcement, id=ann_id)
+        roll_no = request.POST['roll_no']
+        course = request.POST['course']
+        mobile = request.POST['mobile']
+        email = request.POST['email']
+
+        EventInterest.objects.create(
+            announcement=announcement,
+            roll_no=roll_no,
+            course=course,
+            mobile=mobile,
+            email=email
+        )
+
+        messages.success(request, "Your interest has been recorded successfully!")
+        return redirect('announcements')
+
+    return redirect('announcements')
+
+
+
+#
+
 
 def loginPage(request):
     page = 'login'
@@ -60,6 +107,7 @@ def loginPage(request):
 def logoutUser(request):
     logout(request)
     return redirect('home')
+
 
 
 # def registerPage(request):

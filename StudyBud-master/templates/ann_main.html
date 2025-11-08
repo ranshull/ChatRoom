@@ -1,0 +1,26 @@
+
+
+
+
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Django Site{% endblock %}</title>
+    <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="{% static 'styles/style2.css' %}?v=1.2" />
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% include 'ann_navbar.html' %}
+    
+     <main class="main-content">
+        {% block content %}
+        <!-- Your page content goes here -->
+        {% endblock %}
+    </main>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
