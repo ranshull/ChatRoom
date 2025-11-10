@@ -389,7 +389,8 @@ def activityPage(request):
 
 # Setup Gemini API client
 
-os.environ["API_KEY"] = "AIzaSyDuCmFicMCoCmg2DUuT5eUZhIEPz_2f03c"
+# os.environ["API_KEY"] = "AIzaSyDuCmFicMCoCmg2DUuT5eUZhIEPz_2f03c"
+API_KEY = os.getenv("API_KEY")
 
 client = genai.Client(api_key=os.environ["API_KEY"])
 
