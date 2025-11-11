@@ -17,7 +17,10 @@ from django.contrib.auth import authenticate, login, logout
 from .models import Room, Topic, Message, User, Announcement, EventInterest
 from .forms import RoomForm, UserForm, MyUserCreationForm
 from django.contrib import messages
-
+import openpyxl
+from openpyxl.styles import Font, Alignment, PatternFill
+from django.http import HttpResponse
+from .models import EventInterest
 import pytesseract
 import fitz 
 
@@ -74,6 +77,54 @@ def event_interest(request, ann_id):
     return redirect('announcements')
 
 
+
+
+def export_event_interests(request):
+    # Create a workbook and sheet
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Interested Students"
+
+    # Define headers
+    headers = ["S.No", "Announcement Title", "Roll No", "Course", "Mobile", "Email"]
+
+    # Style header
+    header_font = Font(bold=True, color="FFFFFF")
+    header_fill = PatternFill("solid", fgColor="4F81BD")
+    center_align = Alignment(horizontal="center", vertical="center")
+
+    # Write headers
+    for col_num, column_title in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_num, value=column_title)
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = center_align
+
+    # Fetch data
+    interests = EventInterest.objects.select_related('announcement').all().order_by('-id')
+
+    for row_num, interest in enumerate(interests, start=2):
+        ws.cell(row=row_num, column=1, value=row_num - 1)
+        ws.cell(row=row_num, column=2, value=interest.announcement.title)
+        ws.cell(row=row_num, column=3, value=interest.roll_no)
+        ws.cell(row=row_num, column=4, value=interest.course)
+        ws.cell(row=row_num, column=5, value=interest.mobile)
+        ws.cell(row=row_num, column=6, value=interest.email)
+        
+
+    # Adjust column widths
+    for column_cells in ws.columns:
+        length = max(len(str(cell.value)) if cell.value else 0 for cell in column_cells)
+        ws.column_dimensions[column_cells[0].column_letter].width = length + 3
+
+    # Prepare response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="interested_students.xlsx"'
+
+    wb.save(response)
+    return response
 
 #
 
@@ -389,7 +440,7 @@ def activityPage(request):
 
 # Setup Gemini API client
 
-# os.environ["API_KEY"] = "AIzaSyDuCmFicMCoCmg2DUuT5eUZhIEPz_2f03c"
+os.environ["API_KEY"] = "AIzaSyDuCmFicMCoCmg2DUuT5eUZhIEPz_2f03c"
 API_KEY = os.getenv("API_KEY")
 
 client = genai.Client(api_key=os.environ["API_KEY"])
@@ -468,63 +519,143 @@ def extract_text_from_image(image_path):
         print("OCR failed:", e)
         return ""
 
-# Generate flashcards using Gemini API
+import time
+from django.shortcuts import render, get_object_or_404
+from pathlib import Path
+
 def generate_flashcards_from_text(input_text, num_cards=10, explain=True):
-    # explanation = "Explain each answer clearly and concisely." if explain else ""
     prompt = (
-    f"Read the following text carefully and generate **student-friendly flashcards**. "
-    f"Requirements:\n"
-    f"1. Each flashcard must cover **only one main idea**.\n"
-    f"2. Keep flashcards **short and easy to remember** (1–2 sentences max).\n"
-    f"3. Use **concise statements or bullets**; do NOT use Q&A format.\n"
-    f"4. Each flashcard should be **self-contained**—it should make sense on its own.\n"
-    f"5. Cover **all key points** from the text; create as many flashcards as necessary.\n"
-    f"6. After each flashcard, include '###' as a separator.\n"
-    f"7. Do not include any extra instructions or filler text.\n\n"
-    f"Text:\n{input_text}\n\n"
-    f"Flashcards:\n"
-)
-
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt
+        f"Read the following text carefully and generate **student-friendly flashcards**. "
+        f"Requirements:\n"
+        f"1. Each flashcard must cover **only one main idea**.\n"
+        f"2. Keep flashcards **short and easy to remember** (1–2 sentences max).\n"
+        f"3. Use **concise statements or bullets**; do NOT use Q&A format.\n"
+        f"4. Each flashcard should be **self-contained**—it should make sense on its own.\n"
+        f"5. Cover **all key points** from the text; create as many flashcards as necessary.\n"
+        f"6. After each flashcard, include '###' as a separator.\n"
+        f"7. Do not include any extra instructions or filler text.\n\n"
+        f"Text:\n{input_text}\n\n"
+        f"Flashcards:\n"
     )
-    return response.text
 
-# Django view
+    # Retry logic (up to 3 times)
+    max_retries = 3
+    for attempt in range(1, max_retries + 1):
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt
+            )
+            return response.text
+        except Exception as e:
+            if attempt < max_retries:
+                print(f"⚠️ Attempt {attempt} failed: {e}. Retrying...")
+                time.sleep(2)  # small delay before retry
+            else:
+                print(f"❌ All attempts failed: {e}")
+                return None  # indicate failure
+
+
 def generate_flashcard(request, message_id):
     message = get_object_or_404(Message, id=message_id)
     input_text = ""
 
-    # 1. Text input
+    # 1. Text
     if message.body:
         input_text += message.body + "\n\n"
 
-    # 2. PDF input
+    # 2. PDF
     if message.pdf:
         pdf_path = message.pdf.path
         if Path(pdf_path).exists():
             input_text += extract_text_from_pdf(pdf_path) + "\n\n"
 
-    # 3. Image input
+    # 3. Image
     if message.image:
         image_path = message.image.path
         if Path(image_path).exists():
             input_text += extract_text_from_image(image_path) + "\n\n"
 
-    flashcards = ""
-    if input_text.strip():  # Only generate if there's any text
-        flashcard_text = generate_flashcards_from_text(input_text, num_cards=10)
-        flashcards = [f.strip() for f in flashcard_text.split("###") if f.strip()]
+    flashcards = []
+    error_message = None
 
+    if input_text.strip():
+        flashcard_text = generate_flashcards_from_text(input_text)
+        if flashcard_text:
+            flashcards = [f.strip() for f in flashcard_text.split("###") if f.strip()]
+        else:
+            error_message = (
+                "The flashcard service is temporarily overloaded. Please try again later."
+            )
+    else:
+        error_message = "No valid text found to generate flashcards."
 
     context = {
         "message": message,
         "flashcards": flashcards,
+        "error_message": error_message,
     }
     return render(request, "base/flashcards.html", context)
 
 
+#--------------------------------------------------------------------------------
+# Generate flashcards using Gemini API
+# def generate_flashcards_from_text(input_text, num_cards=10, explain=True):
+#     # explanation = "Explain each answer clearly and concisely." if explain else ""
+#     prompt = (
+#     f"Read the following text carefully and generate **student-friendly flashcards**. "
+#     f"Requirements:\n"
+#     f"1. Each flashcard must cover **only one main idea**.\n"
+#     f"2. Keep flashcards **short and easy to remember** (1–2 sentences max).\n"
+#     f"3. Use **concise statements or bullets**; do NOT use Q&A format.\n"
+#     f"4. Each flashcard should be **self-contained**—it should make sense on its own.\n"
+#     f"5. Cover **all key points** from the text; create as many flashcards as necessary.\n"
+#     f"6. After each flashcard, include '###' as a separator.\n"
+#     f"7. Do not include any extra instructions or filler text.\n\n"
+#     f"Text:\n{input_text}\n\n"
+#     f"Flashcards:\n"
+# )
+
+#     response = client.models.generate_content(
+#         model="gemini-2.5-flash",
+#         contents=prompt
+#     )
+#     return response.text
+
+# # Django view
+# def generate_flashcard(request, message_id):
+#     message = get_object_or_404(Message, id=message_id)
+#     input_text = ""
+
+#     # 1. Text input
+#     if message.body:
+#         input_text += message.body + "\n\n"
+
+#     # 2. PDF input
+#     if message.pdf:
+#         pdf_path = message.pdf.path
+#         if Path(pdf_path).exists():
+#             input_text += extract_text_from_pdf(pdf_path) + "\n\n"
+
+#     # 3. Image input
+#     if message.image:
+#         image_path = message.image.path
+#         if Path(image_path).exists():
+#             input_text += extract_text_from_image(image_path) + "\n\n"
+
+#     flashcards = ""
+#     if input_text.strip():  # Only generate if there's any text
+#         flashcard_text = generate_flashcards_from_text(input_text, num_cards=10)
+#         flashcards = [f.strip() for f in flashcard_text.split("###") if f.strip()]
+
+
+#     context = {
+#         "message": message,
+#         "flashcards": flashcards,
+#     }
+#     return render(request, "base/flashcards.html", context)
+
+#-------------------------------------------------------------------------------------11/11/25
 # def extract_text_from_image(image_field):
 #     """Extract text from an uploaded image using pytesseract"""
 #     if not image_field:

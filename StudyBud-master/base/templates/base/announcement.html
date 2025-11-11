@@ -213,6 +213,15 @@
     }
 </style>
 
+{% if messages %}
+  <div>
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
 
 <div class="announcement-container">
     <div class="announcement-header">
@@ -268,6 +277,11 @@
                 </form>
             </div>
         </div>
+
+        <a href="{% url 'export_event_interests' %}" class="btn btn-success">
+        📥 Download Interested Students (Excel)
+        </a>
+
 
         <!-- Info Modal -->
         <div class="modal-overlay" id="infoModal-{{ ann.id }}">
