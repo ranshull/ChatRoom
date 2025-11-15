@@ -1,9 +1,11 @@
 
 from django.contrib.auth.models import BaseUserManager, AbstractUser
 from django.db import models
-
-
+from .supabase_storage import upload_file  # import your Supabase helper
+import re
 from django.contrib.auth.models import BaseUserManager
+
+
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -64,10 +66,18 @@ class Room(models.Model):
         return self.name
 
 
+
+#this on is  working :)
 # class Message(models.Model):
 #     user = models.ForeignKey(User, on_delete=models.CASCADE)
 #     room = models.ForeignKey(Room, on_delete=models.CASCADE)
 #     body = models.TextField()
+#     hashtags = models.CharField(max_length=500, blank=True)  # stores hashtags as space-separated text
+
+#     # Add new fields
+#     image = models.ImageField(upload_to='message_images/', blank=True, null=True)
+#     pdf = models.FileField(upload_to='message_pdfs/', blank=True, null=True)
+
 #     updated = models.DateTimeField(auto_now=True)
 #     created = models.DateTimeField(auto_now_add=True)
 
@@ -75,42 +85,38 @@ class Room(models.Model):
 #         ordering = ['-updated', '-created']
 
 #     def __str__(self):
-#         return self.body[0:50]
+#         return self.body[:50]
 
-
-#this one working model
-
-# class Message(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     room = models.ForeignKey(Room, on_delete=models.CASCADE)
-#     body = models.TextField()
-#     hashtags = models.CharField(max_length=500, blank=True)  # optional
-#     updated = models.DateTimeField(auto_now=True)
-#     created = models.DateTimeField(auto_now_add=True)
-
-#     class Meta:
-#         ordering = ['-updated', '-created']
-
-#     def __str__(self):
-#         return self.body[0:50]
+#     def hashtag_list(self):
+#         """Return list of hashtags"""
+#         return [tag.strip() for tag in self.hashtags.split() if tag.strip()]
 
 #     def save(self, *args, **kwargs):
-#         # Extract hashtags automatically on save
 #         import re
-#         self.hashtags = " ".join(re.findall(r"#\w+", self.body))
+#         # auto-detect hashtags in body (if any)
+#         found = re.findall(r"#\w+", self.body)
+#         # merge with manually added ones (if any)
+#         unique_tags = list(set(found + self.hashtag_list()))
+#         self.hashtags = " ".join(unique_tags)
 #         super().save(*args, **kwargs)
 
 
-#this on is trying to work
+
+
+
 class Message(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    room = models.ForeignKey('Room', on_delete=models.CASCADE)
     body = models.TextField()
-    hashtags = models.CharField(max_length=500, blank=True)  # stores hashtags as space-separated text
+    hashtags = models.CharField(max_length=500, blank=True)
 
-    # Add new fields
-    image = models.ImageField(upload_to='message_images/', blank=True, null=True)
-    pdf = models.FileField(upload_to='message_pdfs/', blank=True, null=True)
+    # Temporarily store uploaded file, will be sent to Supabase
+    image = models.ImageField(upload_to='temp/', blank=True, null=True)
+    pdf = models.FileField(upload_to='temp/', blank=True, null=True)
+
+    # Store permanent URLs
+    image_url = models.URLField(blank=True, null=True)
+    pdf_url = models.URLField(blank=True, null=True)
 
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -122,40 +128,31 @@ class Message(models.Model):
         return self.body[:50]
 
     def hashtag_list(self):
-        """Return list of hashtags"""
         return [tag.strip() for tag in self.hashtags.split() if tag.strip()]
 
     def save(self, *args, **kwargs):
-        import re
-        # auto-detect hashtags in body (if any)
+        # Handle hashtags
         found = re.findall(r"#\w+", self.body)
-        # merge with manually added ones (if any)
         unique_tags = list(set(found + self.hashtag_list()))
         self.hashtags = " ".join(unique_tags)
+
+        # Save first to get file data from image/pdf
         super().save(*args, **kwargs)
 
-    # def save(self, *args, **kwargs):
-    #     import re
-    #     # auto-detect hashtags in body (with or without #)
-    #     found = re.findall(r"#?\w+", self.body)  # matches both #unit1 and unit1
-    #     # remove any leading '#' from each tag
-    #     clean_tags = [tag.lstrip("#") for tag in found]
-    #     # remove duplicates
-    #     unique_tags = list(set(clean_tags))
-    #     # store as space-separated plain words
-    #     self.hashtags = " ".join(unique_tags)
-    #     super().save(*args, **kwargs)
+        # Upload image to Supabase
+        if self.image and not self.image_url:
+            img_path = f"message_images/{self.image.name}"
+            self.image_url = upload_file(self.image, img_path)
 
-# class Announcement(models.Model):
-#     author = models.ForeignKey(User, on_delete=models.CASCADE)
-#     title = models.CharField(max_length=200)
-#     content = models.TextField()
-#     venue = models.CharField(max_length=100)
-#     event_date = models.DateField()
-#     event_time = models.TimeField()
-#     school_name = models.CharField(max_length=50)
-#     created_at = models.DateTimeField(auto_now_add=True)
+        # Upload PDF to Supabase
+        if self.pdf and not self.pdf_url:
+            pdf_path = f"message_pdfs/{self.pdf.name}"
+            self.pdf_url = upload_file(self.pdf, pdf_path)
 
+        # Update URL fields without recursion
+        super().save(update_fields=['image_url', 'pdf_url'])
+
+# ---------------------------------------------------------------------------------------------------------------------
 
 class Announcement(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)

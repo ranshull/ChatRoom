@@ -612,19 +612,19 @@ input[name="hashtag"]::placeholder {
                   <a href="{% url 'edit_message_hashtags' message.id %}">✏️ Edit</a>
                 {% endfor %}
                 
-                {% if message.image %}
-                  <img src="{{ message.image.url }}" alt="Image" class="thread__image" />
+                {% if message.image_url %}
+                  <img src="{{ message.image_url }}" alt="Image" class="thread__image" />
                 {% endif %}
 
-               {% if message.pdf %}
+               {% if message.pdf_url %}
               <div class="thread__pdfPreview" style="display:flex; align-items:center; gap:8px; background:#9acdc9; padding:6px 10px; border-radius:6px; border:1px solid #ccc; margin:8px 0;">
                 <span style="font-size:24px;">📄</span>
                 <!-- <a href="{{ message.pdf.url }}" target="_blank" class="thread__pdfLink" style="font-size:16px;">📝</a> -->
                 <span style="flex:1; font-size:14px; word-break:break-all; color:#000;">
-                  <a href="{{ message.pdf.url }}" target="_blank" class="thread__pdfLink" style=" text-decoration: none; font-size:16px; color:#000;" >{{ message.pdf.name|slice:"10:" }}</a>
+                  <a href="{{ message.pdf_url }}" target="_blank" class="thread__pdfLink" style=" text-decoration: none; font-size:16px; color:#000;" >{{ message.pdf.name|slice:"10:" }}</a>
                 </span>
                 
-                <a href="{{ message.pdf.url }}" download 
+                <a href="{{ message.pdf_url }}" download 
                   style="padding:4px 8px; background:#264653; color:#fff; border-radius:4px; text-decoration:none; font-size:12px;">
                   Download
                 </a>

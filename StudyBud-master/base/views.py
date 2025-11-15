@@ -31,6 +31,12 @@ import fitz
 #     {'id': 2, 'name': 'Design with me'},
 #     {'id': 3, 'name': 'Frontend developers'},
 # ]
+def test_template(request):
+    # Get the latest message (or create one for testing)
+    message = Message.objects.last()  # or Message.objects.create(body="Test")
+    
+    context = {"message": message}
+    return render(request, "base/test.html", context)
 
 def dashboard_view(request):
     return render(request, 'base/index.html')
@@ -51,9 +57,39 @@ def dashboard_view(request):
 #         # save interest or send notification etc.
 #         messages.success(request, "Your interest has been recorded.")
 #         return redirect('announcements')
+
+# def announcements(request):
+#     announcements = Announcement.objects.all().order_by('-created_at')
+#     return render(request, 'base/announcement.html', {'announcements': announcements})
+
+@login_required(login_url='login')
 def announcements(request):
+    if request.method == "POST":
+        # Create new announcement
+        title = request.POST.get("title")
+        venue = request.POST.get("venue")
+        event_date = request.POST.get("event_date")
+        event_time = request.POST.get("event_time")
+        school_name = request.POST.get("school_name")
+        content = request.POST.get("content")
+
+        Announcement.objects.create(
+            author=request.user,
+            title=title,
+            venue=venue,
+            event_date=event_date,
+            event_time=event_time,
+            school_name=school_name,
+            content=content
+        )
+
+        messages.success(request, "Announcement posted successfully!")
+        return redirect("announcements")
+
+    # Existing: fetch all announcements
     announcements = Announcement.objects.all().order_by('-created_at')
     return render(request, 'base/announcement.html', {'announcements': announcements})
+
 
 def event_interest(request, ann_id):
     if request.method == 'POST':
@@ -79,54 +115,82 @@ def event_interest(request, ann_id):
 
 
 
-def export_event_interests(request):
-    # Create a workbook and sheet
+# def export_event_interests(request):
+#     # Create a workbook and sheet
+#     wb = openpyxl.Workbook()
+#     ws = wb.active
+#     ws.title = "Interested Students"
+
+#     # Define headers
+#     headers = ["S.No", "Announcement Title", "Roll No", "Course", "Mobile", "Email"]
+
+#     # Style header
+#     header_font = Font(bold=True, color="FFFFFF")
+#     header_fill = PatternFill("solid", fgColor="4F81BD")
+#     center_align = Alignment(horizontal="center", vertical="center")
+
+#     # Write headers
+#     for col_num, column_title in enumerate(headers, 1):
+#         cell = ws.cell(row=1, column=col_num, value=column_title)
+#         cell.font = header_font
+#         cell.fill = header_fill
+#         cell.alignment = center_align
+
+#     # Fetch data
+#     interests = EventInterest.objects.select_related('announcement').all().order_by('-id')
+
+#     for row_num, interest in enumerate(interests, start=2):
+#         ws.cell(row=row_num, column=1, value=row_num - 1)
+#         ws.cell(row=row_num, column=2, value=interest.announcement.title)
+#         ws.cell(row=row_num, column=3, value=interest.roll_no)
+#         ws.cell(row=row_num, column=4, value=interest.course)
+#         ws.cell(row=row_num, column=5, value=interest.mobile)
+#         ws.cell(row=row_num, column=6, value=interest.email)
+        
+
+#     # Adjust column widths
+#     for column_cells in ws.columns:
+#         length = max(len(str(cell.value)) if cell.value else 0 for cell in column_cells)
+#         ws.column_dimensions[column_cells[0].column_letter].width = length + 3
+
+#     # Prepare response
+#     response = HttpResponse(
+#         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+#     )
+#     response['Content-Disposition'] = 'attachment; filename="interested_students.xlsx"'
+
+#     wb.save(response)
+#     return response
+
+def export_event_interests(request, ann_id):
+    announcement = get_object_or_404(Announcement, id=ann_id)
+
+    interests = EventInterest.objects.filter(announcement=announcement).order_by('-id')
+
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Interested Students"
 
-    # Define headers
-    headers = ["S.No", "Announcement Title", "Roll No", "Course", "Mobile", "Email"]
+    headers = ["S.No", "Roll No", "Course", "Mobile", "Email"]
+    for col, h in enumerate(headers, 1):
+        ws.cell(row=1, column=col, value=h)
 
-    # Style header
-    header_font = Font(bold=True, color="FFFFFF")
-    header_fill = PatternFill("solid", fgColor="4F81BD")
-    center_align = Alignment(horizontal="center", vertical="center")
+    interests = EventInterest.objects.filter(announcement=announcement)
 
-    # Write headers
-    for col_num, column_title in enumerate(headers, 1):
-        cell = ws.cell(row=1, column=col_num, value=column_title)
-        cell.font = header_font
-        cell.fill = header_fill
-        cell.alignment = center_align
+    for i, item in enumerate(interests, start=2):
+        ws.cell(i, 1, i - 1)
+        ws.cell(i, 2, item.roll_no)
+        ws.cell(i, 3, item.course)
+        ws.cell(i, 4, item.mobile)
+        ws.cell(i, 5, item.email)
 
-    # Fetch data
-    interests = EventInterest.objects.select_related('announcement').all().order_by('-id')
-
-    for row_num, interest in enumerate(interests, start=2):
-        ws.cell(row=row_num, column=1, value=row_num - 1)
-        ws.cell(row=row_num, column=2, value=interest.announcement.title)
-        ws.cell(row=row_num, column=3, value=interest.roll_no)
-        ws.cell(row=row_num, column=4, value=interest.course)
-        ws.cell(row=row_num, column=5, value=interest.mobile)
-        ws.cell(row=row_num, column=6, value=interest.email)
-        
-
-    # Adjust column widths
-    for column_cells in ws.columns:
-        length = max(len(str(cell.value)) if cell.value else 0 for cell in column_cells)
-        ws.column_dimensions[column_cells[0].column_letter].width = length + 3
-
-    # Prepare response
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = 'attachment; filename="interested_students.xlsx"'
-
+    response['Content-Disposition'] = f'attachment; filename="{announcement.title}_interests.xlsx"'
     wb.save(response)
     return response
 
-#
 
 
 def loginPage(request):

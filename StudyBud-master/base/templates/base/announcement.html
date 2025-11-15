@@ -1,10 +1,11 @@
-{% extends 'ann_main.html' %}
+{% extends 'an_main.html' %}
 {% load static %}
 
 {% block content %}
 <style>
     body {
-        background-color: #f3f4f6;
+        /* background-color: #f3f4f6; */
+         background-color: #e6f7f5;
     }
 
     .announcement-container {
@@ -16,12 +17,24 @@
     .announcement-header {
         text-align: center;
         margin-bottom: 2rem;
+        
     }
 
     .announcement-header h1 {
         font-size: 2.2rem;
         font-weight: 700;
-        color: #1a1a2e;
+        /* color: #1a1a2e; */
+        font-family: 'Playfair Display', serif;
+        color: #042c33;
+    }
+
+    .announcement-header p {
+        font-size: 1.9 rem;
+        font-style: italic;
+        font-family: 'Playfair Display', serif;
+        
+        /* color: #1a1a2e; */
+        color: #35565c;
     }
 
     /* Floating + Button */
@@ -29,7 +42,7 @@
         position: fixed;
         bottom: 30px;
         right: 30px;
-        background: linear-gradient(135deg, #0066ff, #00ccff);
+        background: linear-gradient(135deg, #264653, #67c3e8);
         color: white;
         border: none;
         width: 60px;
@@ -37,15 +50,17 @@
         border-radius: 50%;
         font-size: 2rem;
         font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+        /* cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3); */
+        box-shadow: 0 4px 15px rgba(79, 209, 197, 0.35);
         transition: transform 0.2s, box-shadow 0.2s;
         z-index: 999;
     }
 
     .add-announcement-btn:hover {
         transform: scale(1.1);
-        box-shadow: 0 6px 20px rgba(0, 102, 255, 0.4);
+        /* box-shadow: 0 6px 20px rgba(0, 102, 255, 0.4); */
+        box-shadow: 0 6px 20px rgba(79, 209, 197, 0.4);
     }
 
     /* Post Card (Insta-style) */
@@ -53,7 +68,9 @@
         background: white;
         border-radius: 12px;
         margin-bottom: 2rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); */
+        box-shadow: 0 2px 8px rgba(31, 47, 50, 0.12);
+
         overflow: hidden;
         transition: transform 0.2s ease;
     }
@@ -66,10 +83,11 @@
         display: flex;
         align-items: center;
         padding: 1rem;
-        border-bottom: 1px solid #eee;
+        /* border-bottom: 1px solid #eee; */
+         border-bottom: 1px solid #b9d4d1;
     }
 
-    .post-avatar {
+    /* .post-avatar {
         width: 45px;
         height: 45px;
         border-radius: 50%;
@@ -81,18 +99,31 @@
         align-items: center;
         justify-content: center;
         margin-right: 1rem;
-    }
+    } */
+     .post-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: #4fd1c5;
+    color: #1f2f32;
+    font-weight: bold;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
 
     .post-user-info h3 {
         margin: 0;
         font-size: 1.1rem;
-        color: #1a1a2e;
+        color: #264653;
     }
 
     .post-user-info p {
         margin: 0;
         font-size: 0.85rem;
-        color: #666;
+        color:  #8ca8a8;
     }
 
     .post-body {
@@ -138,7 +169,7 @@
     }
 
     .action-btn:hover {
-        color: #004bcc;
+        color: #1f779a;;
     }
 
     /* Modal Popup */
@@ -203,7 +234,7 @@
 
     .form-submit {
         margin-top: 0.5rem;
-        background: linear-gradient(135deg, #0066ff, #00ccff);
+        background: linear-gradient(135deg, #264653, #62bade);
         color: white;
         border: none;
         padding: 0.6rem 1.2rem;
@@ -211,6 +242,23 @@
         font-weight: 600;
         cursor: pointer;
     }
+
+
+    .excel-btn {
+    text-decoration: none;
+    font-size: 1.2rem;
+    padding: 6px 10px;
+    background: #ffffff;
+    color: white;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.excel-btn:hover {
+    background: #8383f7;
+}
+
 </style>
 
 {% if messages %}
@@ -225,8 +273,8 @@
 
 <div class="announcement-container">
     <div class="announcement-header">
-        <h1>📢 Announcements</h1>
-        <p>Stay updated with the latest campus news and events</p>
+        <h1>---EVENTS---</h1>
+        <p>Stay updated with the events</p>
     </div>
 
     {% if announcements %}
@@ -254,7 +302,15 @@
             <!-- Actions -->
             <div class="post-actions">
                 <button class="action-btn" onclick="openInfo('{{ ann.id }}')">ℹ️ Info</button>
+
+                <a href="{% url 'export_event_interests' ann.id %}" class="action-btn" title="Download Interested Students">
+                📊 Excel
+                </a>
+                <!-- <button class="action-btn" onclick="openInfo('{{ ann.id }}')">ℹ️ Info</button> -->
+
                 <button class="action-btn" onclick="toggleInterested('{{ ann.id }}')">❤️ Interested</button>
+
+                
             </div>
 
             <!-- Interested Form -->
@@ -278,9 +334,10 @@
             </div>
         </div>
 
-        <a href="{% url 'export_event_interests' %}" class="btn btn-success">
-        📥 Download Interested Students (Excel)
-        </a>
+    
+       
+
+
 
 
         <!-- Info Modal -->
@@ -310,7 +367,7 @@
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal()">&times;</button>
         <h2>Post New Announcement</h2>
-        <form method="POST" action="">
+        <form method="POST" action="{% url 'announcements' %}">
             {% csrf_token %}
             <div class="form-group"><input type="text" name="title" placeholder="Event Title" required></div>
             <div class="form-group"><input type="text" name="venue" placeholder="Venue" required></div>
