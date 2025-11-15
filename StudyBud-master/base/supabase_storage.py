@@ -20,23 +20,25 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 #     return public_url
 
 
+import mimetypes
+
 def upload_file(file, path):
     """
-    file: Django InMemoryUploadedFile or File object
-    path: path in bucket, e.g., 'message_files/doc1.pdf'
+    file: InMemoryUploadedFile (from request.FILES)
+    path: storage path (string)
     """
 
+    # Read raw binary
     file_data = file.read()
-    mime_type = file.content_type  # <= Detect MIME correctly
 
-    # Upload with correct content-type
+    # Detect MIME type
+    content_type = file.content_type if hasattr(file, "content_type") else mimetypes.guess_type(path)[0]
+
     supabase.storage.from_(SUPABASE_BUCKET).upload(
-        path,
-        file_data,
-        {
-            "contentType": mime_type
-        }
+        path=path,
+        file=file_data,
+        options={"content-type": content_type}  # <-- important
     )
 
-    public_url = supabase.storage.from_(SUPABASE_BUCKET).get_public_url(path)
-    return public_url
+    return supabase.storage.from_(SUPABASE_BUCKET).get_public_url(path)
+
