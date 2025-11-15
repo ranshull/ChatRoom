@@ -22,6 +22,7 @@ from openpyxl.styles import Font, Alignment, PatternFill
 from django.http import HttpResponse
 from .models import EventInterest
 import pytesseract
+from .supabase_storage import upload_file
 import fitz 
 
 # Create your views here.
@@ -372,22 +373,53 @@ def room(request, pk):
     # image = None
     # pdf = None
     
+    # if request.method == 'POST':
+    #     body = request.POST.get('body')
+    #     image = request.FILES.get('image')
+    #     pdf = request.FILES.get('pdf')
+
+    #     if body or image or pdf:  # prevent empty messages
+    #         message=Message.objects.create(
+    #             user=request.user,
+    #             room=room,
+    #             body=body,
+    #             image=image,
+    #             pdf=pdf
+    #         )
+    #         room.participants.add(request.user)
+            
+    #     return redirect('room', pk=room.id)
+   
+
     if request.method == 'POST':
         body = request.POST.get('body')
         image = request.FILES.get('image')
         pdf = request.FILES.get('pdf')
 
-        if body or image or pdf:  # prevent empty messages
-            message=Message.objects.create(
+        image_url = None
+        pdf_url = None
+
+        # Upload image to supabase
+        if image:
+            image_url = upload_file(image, f"message_images/{image.name}")
+
+        # Upload pdf to supabase
+        if pdf:
+            pdf_url = upload_file(pdf, f"message_pdfs/{pdf.name}")
+
+        # Save message in database
+        if body or image_url or pdf_url:
+            message = Message.objects.create(
                 user=request.user,
                 room=room,
                 body=body,
-                image=image,
-                pdf=pdf
+                image=image_url,   # store Supabase URL
+                pdf=pdf_url        # store Supabase URL
             )
             room.participants.add(request.user)
-            
+
         return redirect('room', pk=room.id)
+
 
 
     context = {
