@@ -341,19 +341,11 @@ def room(request, pk):
     room_messages = room.message_set.all()
     participants = room.participants.all()
 
-    # hashtag_filter = request.GET.get('hashtag', '')
     hashtag_filter1 = request.GET.get('hashtag', '').strip()
     hashtag_filter = hashtag_filter1.lstrip('#')
-    # if not hashtag_filter.startswith('#') and hashtag_filter != '':
-    #     hashtag_filter = '#' + hashtag_filter
-
 
     if hashtag_filter:
-        # room_messages = room_messages.filter(hashtags__icontains=hashtag_filter)
-        # room_messages = room_messages.filter(hashtags__regex=rf'\b{hashtag_filter}\b')
         room_messages = room_messages.filter(hashtags__regex=rf'(^| )({hashtag_filter})( |$)')
-        
-
 
     # Collect all distinct hashtags in the room
     all_hashtags = []
@@ -361,66 +353,23 @@ def room(request, pk):
         all_hashtags.extend(msg.hashtags.split())
     distinct_hashtags = sorted(set(all_hashtags))
 
-    # if request.method == 'POST':
-    #     message = Message.objects.create(
-    #         user=request.user,
-    #         room=room,
-    #         body=request.POST.get('body')                      # working one
-    #     )
-    #     room.participants.add(request.user)
-    #     return redirect('room', pk=room.id)
-    # body = None
-    # image = None
-    # pdf = None
-    
-    # if request.method == 'POST':
-    #     body = request.POST.get('body')
-    #     image = request.FILES.get('image')
-    #     pdf = request.FILES.get('pdf')
-
-    #     if body or image or pdf:  # prevent empty messages
-    #         message=Message.objects.create(
-    #             user=request.user,
-    #             room=room,
-    #             body=body,
-    #             image=image,
-    #             pdf=pdf
-    #         )
-    #         room.participants.add(request.user)
-            
-    #     return redirect('room', pk=room.id)
-   
-
     if request.method == 'POST':
         body = request.POST.get('body')
         image = request.FILES.get('image')
         pdf = request.FILES.get('pdf')
 
-        image_url = None
-        pdf_url = None
-
-        # Upload image to supabase
-        if image:
-            image_url = upload_file(image, f"message_images/{image.name}")
-
-        # Upload pdf to supabase
-        if pdf:
-            pdf_url = upload_file(pdf, f"message_pdfs/{pdf.name}")
-
-        # Save message in database
-        if body or image_url or pdf_url:
+        # Create message with files - let the model's save() handle Supabase upload
+        if body or image or pdf:
             message = Message.objects.create(
                 user=request.user,
                 room=room,
                 body=body,
-                image=image_url,   # store Supabase URL
-                pdf=pdf_url        # store Supabase URL
+                image=image,  # Pass the file object directly
+                pdf=pdf      # Pass the file object directly
             )
             room.participants.add(request.user)
 
         return redirect('room', pk=room.id)
-
-
 
     context = {
         'room': room,
@@ -430,7 +379,102 @@ def room(request, pk):
         'hashtag_filter': hashtag_filter
     }
     return render(request, 'base/room.html', context)
+# --------------------------------------------
+# def room(request, pk):
+#     room = Room.objects.get(id=pk)
+#     room_messages = room.message_set.all()
+#     participants = room.participants.all()
 
+#     # hashtag_filter = request.GET.get('hashtag', '')
+#     hashtag_filter1 = request.GET.get('hashtag', '').strip()
+#     hashtag_filter = hashtag_filter1.lstrip('#')
+#     # if not hashtag_filter.startswith('#') and hashtag_filter != '':
+#     #     hashtag_filter = '#' + hashtag_filter
+
+
+#     if hashtag_filter:
+#         # room_messages = room_messages.filter(hashtags__icontains=hashtag_filter)
+#         # room_messages = room_messages.filter(hashtags__regex=rf'\b{hashtag_filter}\b')
+#         room_messages = room_messages.filter(hashtags__regex=rf'(^| )({hashtag_filter})( |$)')
+        
+
+
+#     # Collect all distinct hashtags in the room
+#     all_hashtags = []
+#     for msg in room.message_set.all():
+#         all_hashtags.extend(msg.hashtags.split())
+#     distinct_hashtags = sorted(set(all_hashtags))
+
+#     # if request.method == 'POST':
+#     #     message = Message.objects.create(
+#     #         user=request.user,
+#     #         room=room,
+#     #         body=request.POST.get('body')                      # working one
+#     #     )
+#     #     room.participants.add(request.user)
+#     #     return redirect('room', pk=room.id)
+#     # body = None
+#     # image = None
+#     # pdf = None
+    
+#     # if request.method == 'POST':
+#     #     body = request.POST.get('body')
+#     #     image = request.FILES.get('image')
+#     #     pdf = request.FILES.get('pdf')
+
+#     #     if body or image or pdf:  # prevent empty messages
+#     #         message=Message.objects.create(
+#     #             user=request.user,
+#     #             room=room,
+#     #             body=body,
+#     #             image=image,
+#     #             pdf=pdf
+#     #         )
+#     #         room.participants.add(request.user)
+            
+#     #     return redirect('room', pk=room.id)
+   
+
+#     if request.method == 'POST':
+#         body = request.POST.get('body')
+#         image = request.FILES.get('image')
+#         pdf = request.FILES.get('pdf')
+
+#         image_url = None
+#         pdf_url = None
+
+#         # Upload image to supabase
+#         if image:
+#             image_url = upload_file(image, f"message_images/{image.name}")
+
+#         # Upload pdf to supabase
+#         if pdf:
+#             pdf_url = upload_file(pdf, f"message_pdfs/{pdf.name}")
+
+#         # Save message in database
+#         if body or image_url or pdf_url:
+#             message = Message.objects.create(
+#                 user=request.user,
+#                 room=room,
+#                 body=body,
+#                 image=image_url,   # store Supabase URL
+#                 pdf=pdf_url        # store Supabase URL
+#             )
+#             room.participants.add(request.user)
+
+#         return redirect('room', pk=room.id)
+
+
+
+#     context = {
+#         'room': room,
+#         'room_messages': room_messages,
+#         'participants': participants,
+#         'hashtags': distinct_hashtags,
+#         'hashtag_filter': hashtag_filter
+#     }
+#     return render(request, 'base/room.html', context)
+# ////-------------------------------------------------------------
 
 
 
