@@ -349,7 +349,10 @@ def room(request, pk):
 
     if hashtag_filter:
         # room_messages = room_messages.filter(hashtags__icontains=hashtag_filter)
-        room_messages = room_messages.filter(hashtags__regex=rf'\b{hashtag_filter}\b')
+        # room_messages = room_messages.filter(hashtags__regex=rf'\b{hashtag_filter}\b')
+        room_messages = room_messages.filter(hashtags__regex=rf'(^| )({hashtag_filter})( |$)')
+        
+
 
     # Collect all distinct hashtags in the room
     all_hashtags = []
