@@ -130,8 +130,9 @@ DATABASES = {
         'PASSWORD': os.environ.get('DB_PASSWORD'),
         'HOST': os.environ.get('DB_HOST'),
         'PORT': os.environ.get('DB_PORT', '5432'),
+        'CONN_MAX_AGE': 0,         # REQUIRED for transaction pooling
         'OPTIONS': {
-            'options': f"-c pool_mode={os.environ.get('DB_POOL_MODE','session')}"
+            'sslmode': 'require',  # REQUIRED
         },
         'URL': os.environ.get('DB_URL')
     }
