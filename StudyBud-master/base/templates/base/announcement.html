@@ -613,9 +613,7 @@ p[style*="text-align:center"] {
             <div class="post-actions">
                 <button class="action-btn" onclick="openInfo('{{ ann.id }}')">ℹ️ Info</button>
 
-                <a href="{% url 'export_event_interests' ann.id %}" class="action-btn" title="Download Interested Students">
-                📊 Excel
-                </a>
+                <a href="{% url 'export_event_interests' ann.id %}" class="action-btn" title="Download Interested Students">📊 Excel</a>
                 <!-- <button class="action-btn" onclick="openInfo('{{ ann.id }}')">ℹ️ Info</button> -->
 
                 <button class="action-btn" onclick="toggleInterested('{{ ann.id }}')">❤️ Interested</button>
