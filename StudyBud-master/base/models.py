@@ -46,10 +46,17 @@ class User(AbstractUser):
     bio = models.TextField(null=True)
 
     # Temp upload field (not stored permanently)
-    avatar = models.ImageField(upload_to='temp/', null=True, blank=True)
+    avatar = models.ImageField(upload_to='temp/', null=True, default="avatar.svg")
 
     # Final Supabase URL
-    avatar_url = models.URLField(null=True, blank=True)
+    avatar_url = models.URLField(
+        null=True, 
+        blank=True, 
+        default="https://zjsarscptztnuqgtesjp.supabase.co/storage/v1/object/public/media/avatars/1_temp/avatar.svg"
+    )
+
+
+    # avatar_url = models.URLField(null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
