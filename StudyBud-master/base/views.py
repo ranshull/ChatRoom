@@ -117,7 +117,42 @@ def event_interest(request, ann_id):
     return redirect('announcements')
 
 
+#delete announcemnt
+@login_required(login_url='login')
+def delete_announcement(request, id):
+    ann = get_object_or_404(Announcement, id=id)
 
+    # Only author can delete
+    if ann.author != request.user:
+        messages.error(request, "You are not allowed to delete this announcement.")
+        return redirect('announcements')
+
+    ann.delete()
+    messages.success(request, "Announcement deleted successfully!")
+    return redirect('announcements')
+
+#update announcement
+@login_required(login_url='login')
+def edit_announcement(request, id):
+    ann = get_object_or_404(Announcement, id=id)
+
+    if ann.author != request.user:
+        messages.error(request, "You are not allowed to edit this announcement.")
+        return redirect('announcements')
+
+    if request.method == "POST":
+        ann.title = request.POST.get("title")
+        ann.venue = request.POST.get("venue")
+        ann.event_date = request.POST.get("event_date")
+        ann.event_time = request.POST.get("event_time")
+        ann.school_name = request.POST.get("school_name")
+        ann.content = request.POST.get("content")
+        ann.save()
+
+        messages.success(request, "Announcement updated successfully!")
+        return redirect('announcements')
+
+    return redirect('announcements')
 
 # def export_event_interests(request):
 #     # Create a workbook and sheet
