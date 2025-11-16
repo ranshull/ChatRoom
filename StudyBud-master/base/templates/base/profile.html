@@ -12,7 +12,14 @@
       <div class="profile">
         <div class="profile__avatar">
           <div class="avatar avatar--large active">
-            <img src="{{user.avatar.url}}" />
+            <!-- <img src="{{user.avatar.url}}" /> -->
+             {% if user.avatar_url %}
+                  <img src="{{ user.avatar_url }}" alt="Avatar">
+              {% else %}
+                  <img href="https://zjsarscptztnuqgtesjp.supabase.co/storage/v1/object/public/media/avatars/1_temp/avatar.svg" alt="Avatar">
+              {% endif %}
+
+
           </div>
         </div>
         <div class="profile__info">

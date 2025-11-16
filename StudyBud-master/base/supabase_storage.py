@@ -96,6 +96,9 @@
 from supabase import create_client
 import os
 
+import re
+import unicodedata
+
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 SUPABASE_BUCKET = os.environ.get("SUPABASE_BUCKET", "media")  # Default to 'media' bucket
@@ -149,3 +152,14 @@ def upload_file(file, path):
     except Exception as e:
         print(f"Error uploading file to Supabase: {e}")
         raise
+
+
+
+def sanitize_filename(filename):
+    # Convert unicode → ASCII
+    filename = unicodedata.normalize("NFKD", filename).encode("ascii", "ignore").decode()
+
+    # Replace invalid characters
+    filename = re.sub(r'[^A-Za-z0-9._-]', '_', filename)
+
+    return filename

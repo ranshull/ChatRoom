@@ -1,7 +1,7 @@
 
 from django.contrib.auth.models import BaseUserManager, AbstractUser
 from django.db import models
-from .supabase_storage import upload_file  # import your Supabase helper
+from .supabase_storage import upload_file ,sanitize_filename # import your Supabase helper
 import re
 from django.contrib.auth.models import BaseUserManager
 
@@ -29,17 +29,49 @@ class CustomUserManager(BaseUserManager):
 
 
 
+# class User(AbstractUser):
+#     name = models.CharField(max_length=200, null=True)
+#     email = models.EmailField(unique=True, null=True)
+#     bio = models.TextField(null=True)
+
+#     avatar = models.ImageField(null=True, default="avatar.svg")
+
+#     USERNAME_FIELD = 'email'
+#     REQUIRED_FIELDS = []
+
+#     objects = CustomUserManager() 
 class User(AbstractUser):
     name = models.CharField(max_length=200, null=True)
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True)
 
-    avatar = models.ImageField(null=True, default="avatar.svg")
+    # Temp upload field (not stored permanently)
+    avatar = models.ImageField(upload_to='temp/', null=True, blank=True)
+
+    # Final Supabase URL
+    avatar_url = models.URLField(null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    objects = CustomUserManager() 
+    objects = CustomUserManager()
+
+    
+
+    def save(self, *args, **kwargs):
+        # Save normally first so avatar file exists
+        super().save(*args, **kwargs)
+
+        # If avatar uploaded + no avatar_url stored yet
+        if self.avatar and not self.avatar_url:
+            safe_name = sanitize_filename(self.avatar.name)
+            avatar_path = f"avatars/{self.id}_{safe_name}"
+            self.avatar_url = upload_file(self.avatar, avatar_path)
+
+
+            # Save URL only (prevent infinite recursion)
+            super().save(update_fields=['avatar_url'])
+
 
 
 class Topic(models.Model):

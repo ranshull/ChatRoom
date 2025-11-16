@@ -24,6 +24,9 @@ from .models import EventInterest
 import pytesseract
 from .supabase_storage import upload_file
 import fitz 
+import requests
+import time
+from io import BytesIO
 
 # Create your views here.
 
@@ -565,6 +568,7 @@ def updateUser(request):
         if form.is_valid():
             form.save()
             return redirect('user-profile', pk=user.id)
+    
 
     return render(request, 'base/update-user.html', {'form': form})
 
@@ -644,27 +648,51 @@ client = genai.Client(api_key=os.environ["API_KEY"])
 # client = genai.Client(api_key=os.environ["API_KEY"])
 
 # Optional: Extract text from PDFs using PyMuPDF
-def extract_text_from_pdf(pdf_path):
-    import fitz  # PyMuPDF
-    doc = fitz.open(pdf_path)
+# def extract_text_from_pdf(pdf_path):
+#     import fitz  # PyMuPDF
+#     doc = fitz.open(pdf_path)
+#     text = ""                                                                        #this 1
+#     for page in doc:
+#         text += page.get_text()
+#     return text
+
+
+
+
+def extract_text_from_pdf_url(pdf_url):
+    response = requests.get(pdf_url)
+    doc = fitz.open(stream=response.content, filetype="pdf")
+    
     text = ""
     for page in doc:
         text += page.get_text()
+
     return text
 
+
 # Optional: Extract text from image
-def extract_text_from_image(image_path):
+# def extract_text_from_image(image_path):
+#     try:
+#         image = Image.open(image_path)
+#         text = pytesseract.image_to_string(image)
+#         return text                                                                   #2
+#     except Exception as e:
+#         print("OCR failed:", e)
+#         return ""
+
+
+def extract_text_from_image_url(image_url):
     try:
-        image = Image.open(image_path)
+        response = requests.get(image_url)
+        image = Image.open(BytesIO(response.content))
         text = pytesseract.image_to_string(image)
         return text
     except Exception as e:
         print("OCR failed:", e)
         return ""
 
-import time
-from django.shortcuts import render, get_object_or_404
-from pathlib import Path
+
+
 
 def generate_flashcards_from_text(input_text, num_cards=10, explain=True):
     prompt = (
@@ -699,6 +727,48 @@ def generate_flashcards_from_text(input_text, num_cards=10, explain=True):
                 return None  # indicate failure
 
 
+# def generate_flashcard(request, message_id):
+#     message = get_object_or_404(Message, id=message_id)
+#     input_text = ""
+
+#     # 1. Text
+#     if message.body:
+#         input_text += message.body + "\n\n"
+
+#     # 2. PDF
+#     if message.pdf:
+#         pdf_path = message.pdf.path
+#         if Path(pdf_path).exists():
+#             input_text += extract_text_from_pdf(pdf_path) + "\n\n"
+
+#     # 3. Image
+#     if message.image:
+#         image_path = message.image.path
+#         if Path(image_path).exists():
+#             input_text += extract_text_from_image(image_path) + "\n\n"
+
+#     flashcards = []
+#     error_message = None
+
+#     if input_text.strip():
+#         flashcard_text = generate_flashcards_from_text(input_text)
+#         if flashcard_text:
+#             flashcards = [f.strip() for f in flashcard_text.split("###") if f.strip()]
+#         else:
+#             error_message = (
+#                 "The flashcard service is temporarily overloaded. Please try again later."
+#             )
+#     else:
+#         error_message = "No valid text found to generate flashcards."
+
+#     context = {
+#         "message": message,
+#         "flashcards": flashcards,
+#         "error_message": error_message,
+#     }
+#     return render(request, "base/flashcards.html", context)
+
+
 def generate_flashcard(request, message_id):
     message = get_object_or_404(Message, id=message_id)
     input_text = ""
@@ -707,17 +777,15 @@ def generate_flashcard(request, message_id):
     if message.body:
         input_text += message.body + "\n\n"
 
-    # 2. PDF
-    if message.pdf:
-        pdf_path = message.pdf.path
-        if Path(pdf_path).exists():
-            input_text += extract_text_from_pdf(pdf_path) + "\n\n"
+    # 2. PDF (Supabase Storage URL)
+    if message.pdf_url:
+        pdf_url = message.pdf_url  # PUBLIC SUPABASE URL
+        input_text += extract_text_from_pdf_url(pdf_url) + "\n\n"
 
-    # 3. Image
-    if message.image:
-        image_path = message.image.path
-        if Path(image_path).exists():
-            input_text += extract_text_from_image(image_path) + "\n\n"
+    # 3. Image (Supabase Storage URL)
+    if message.image_url:
+        image_url = message.image_url  # PUBLIC SUPABASE URL
+        input_text += extract_text_from_image_url(image_url) + "\n\n"
 
     flashcards = []
     error_message = None
@@ -733,12 +801,12 @@ def generate_flashcard(request, message_id):
     else:
         error_message = "No valid text found to generate flashcards."
 
-    context = {
+    return render(request, "base/flashcards.html", {
         "message": message,
         "flashcards": flashcards,
         "error_message": error_message,
-    }
-    return render(request, "base/flashcards.html", context)
+    })
+
 
 
 #--------------------------------------------------------------------------------

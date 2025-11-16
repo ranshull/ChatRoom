@@ -155,14 +155,14 @@
     {% if message.image %}
         <div class="original-message">
             <strong>Original Image:</strong><br>
-            <img src="{{ message.image.url }}" alt="Uploaded Image" class="uploaded-image">
+            <img src="{{ message.image_url }}" alt="Uploaded Image" class="uploaded-image">
         </div>
     {% endif %}
 
     {% if message.pdf %}
         <div class="original-message">
             <strong>Original PDF:</strong><br>
-            <a href="{{ message.pdf.url }}" target="_blank" class="pdf-link">
+            <a href="{{ message.pdf_url }}" target="_blank" class="pdf-link">
                 View PDF
             </a>
         </div>

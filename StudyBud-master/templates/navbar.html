@@ -25,7 +25,9 @@
             <div class="header__user">
                 <a href="{% url 'update-user' %}">
                     <div class="avatar avatar--medium active">
-                        <img src="{{request.user.avatar.url}}" />
+                        <img src="{{request.user.avatar_url}}" />
+                        <!-- <img src="{{ user.avatar_url }}" alt="Avatar"> -->
+
                     </div>
                     <p>{{request.user.username}} <span>@{{request.user.username}}</span></p>
                 </a>
@@ -40,7 +42,7 @@
 
             <!-- Not Logged In -->
             <a href="{% url 'login' %}">
-                <img src="{% static 'images/avatar.svg' %}" />
+                <img href="https://zjsarscptztnuqgtesjp.supabase.co/storage/v1/object/public/media/avatars/1_temp/avatar.svg" />
                 <p>Login</p>
             </a>
             {% endif %}
