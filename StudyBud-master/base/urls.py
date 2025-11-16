@@ -14,6 +14,9 @@ urlpatterns = [
     path('event_interest/<int:ann_id>/', views.event_interest, name='event_interest'),
     # path('export-event-interests/', views.export_event_interests, name='export_event_interests'),  all  
     path('export-event-interests/<int:ann_id>/', views.export_event_interests, name='export_event_interests'), #specific
+    path('announcement/<int:id>/delete/', views.delete_announcement, name='delete_announcement'),
+    path('announcement/<int:id>/edit/', views.edit_announcement, name='edit_announcement'),
+
 
 
 
