@@ -322,7 +322,7 @@ a {
 }
 
 .header__search > label {
-  background-color: var(--color-dark-medium);
+  background-color: #053239;
   padding: 1.3rem 1rem;
   display: flex;
   align-items: center;
@@ -1191,3 +1191,5 @@ a {
   color: var(--color-main);
   font-weight: 1.4rem;
 }
+
+

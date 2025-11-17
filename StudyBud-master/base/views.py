@@ -65,11 +65,87 @@ def dashboard_view(request):
 # def announcements(request):
 #     announcements = Announcement.objects.all().order_by('-created_at')
 #     return render(request, 'base/announcement.html', {'announcements': announcements})
+# --------------------------------------------------------------------------------------------------------------------
 
+# @login_required(login_url='login')
+# def announcements(request):
+
+#     announcements = Announcement.objects.all().order_by('-created_at')
+    
+#     # Apply filters
+#     search_query = request.GET.get('search')
+#     school_filter = request.GET.get('school')
+#     start_date = request.GET.get('start_date')
+#     end_date = request.GET.get('end_date')
+    
+#     if search_query:
+#         announcements = announcements.filter(title__icontains=search_query)
+    
+#     if school_filter:
+#         announcements = announcements.filter(school_name=school_filter)
+    
+#     if start_date:
+#         announcements = announcements.filter(event_date__gte=start_date)
+    
+#     if end_date:
+#         announcements = announcements.filter(event_date__lte=end_date)
+
+
+
+
+#     if request.method == "POST":
+#         # Create new announcement
+#         title = request.POST.get("title")
+#         venue = request.POST.get("venue")
+#         event_date = request.POST.get("event_date")
+#         event_time = request.POST.get("event_time")
+#         school_name = request.POST.get("school_name")
+#         content = request.POST.get("content")
+
+#         Announcement.objects.create(
+#             author=request.user,
+#             title=title,
+#             venue=venue,
+#             event_date=event_date,
+#             event_time=event_time,
+#             school_name=school_name,
+#             content=content
+#         )
+
+#         messages.success(request, "Announcement posted successfully!")
+#         return redirect("announcements")
+
+#     # Existing: fetch all announcements
+#     announcements = Announcement.objects.all().order_by('-created_at')
+#     return render(request, 'base/announcement.html', {'announcements': announcements})
+# -------------------------------------------------------------------------------------------------
 @login_required(login_url='login')
 def announcements(request):
+    announcements = Announcement.objects.all().order_by('-created_at')
+    
+    # Apply filters
+    search_query = request.GET.get('search')
+    school_filter = request.GET.get('school')
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    if search_query:
+        announcements = announcements.filter(title__icontains=search_query)
+    
+    if school_filter:
+        announcements = announcements.filter(school_name=school_filter)
+    
+    if start_date:
+        announcements = announcements.filter(event_date__gte=start_date)
+    
+    if end_date:
+        announcements = announcements.filter(event_date__lte=end_date)
+
+    # Get unique school names for dropdown
+    schools = Announcement.objects.values_list('school_name', flat=True).distinct()
+
     if request.method == "POST":
-        # Create new announcement
+        # Your existing POST handling code...
         title = request.POST.get("title")
         venue = request.POST.get("venue")
         event_date = request.POST.get("event_date")
@@ -86,14 +162,13 @@ def announcements(request):
             school_name=school_name,
             content=content
         )
-
         messages.success(request, "Announcement posted successfully!")
         return redirect("announcements")
 
-    # Existing: fetch all announcements
-    announcements = Announcement.objects.all().order_by('-created_at')
-    return render(request, 'base/announcement.html', {'announcements': announcements})
-
+    return render(request, 'base/announcement.html', {
+        'announcements': announcements,
+        'schools': schools
+    })
 
 def event_interest(request, ann_id):
     if request.method == 'POST':
@@ -153,6 +228,21 @@ def edit_announcement(request, id):
         return redirect('announcements')
 
     return redirect('announcements')
+
+
+def announcementProfile(request, pk):
+    user = User.objects.get(id=pk)
+    
+    announcements = Announcement.objects.filter(author=user).order_by('-created_at')
+    context = {
+        'user': user,
+        'announcements': announcements
+    }
+    return render(request, 'base/announcement_profile.html', context)
+
+
+
+
 
 # def export_event_interests(request):
 #     # Create a workbook and sheet

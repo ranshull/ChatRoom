@@ -19,7 +19,8 @@
         </form>
         <nav class="header__menu">
 
-
+            
+<!-- =========================================================================================== -->
             <!-- Logged In -->
             {% if request.user.is_authenticated %}
             <div class="header__user">
@@ -46,8 +47,28 @@
                 <p>Login</p>
             </a>
             {% endif %}
+            
 
             <div class="dropdown-menu">
+
+                <a href="{% url 'user-profile' request.user.id %}" class="dropdown-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" role="img" aria-label="User profile icon">
+                    <title>User profile</title>
+                    <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z"/>
+                        <path d="M3 21c1.5-4 6-6 9-6s7.5 2 9 6"/>
+                    </g>
+                    </svg>
+
+
+                    Profile</a>
+
+                <a href="{% url 'announcements' %}" class="dropdown-link"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                    <path d="M19 4h-1V2h-2v2H8V2H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 
+                    0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z"/>
+                    </svg>
+                     Events</a>
+
+                
                 <a href="{% url 'update-user' %}" class="dropdown-link"><svg version="1.1"
                         xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
                         <title>tools</title>

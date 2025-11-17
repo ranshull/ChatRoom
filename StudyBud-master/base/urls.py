@@ -17,6 +17,9 @@ urlpatterns = [
     path('announcement/<int:id>/delete/', views.delete_announcement, name='delete_announcement'),
     path('announcement/<int:id>/edit/', views.edit_announcement, name='edit_announcement'),
 
+    # urls.py
+    path('announcement-profile/<str:pk>/', views.announcementProfile, name='announcement-profile'),
+
 
 
 

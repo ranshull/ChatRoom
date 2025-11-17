@@ -3,7 +3,7 @@
     <div class="container">
         <a href="{% url 'dashboard' %}" class="header__logo">
             <img src="{% static 'images/icons/logoconnexta.png' %}" />
-            <h1>EVENTS</h1>
+            <h1>CONNEXTA</h1>
         </a>
        
         
@@ -36,6 +36,23 @@
             {% endif %}
 
             <div class="dropdown-menu">
+                <a href="{% url 'announcement-profile' request.user.id %}" class="dropdown-link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" role="img" aria-label="User profile icon">
+                    <title>User profile</title>
+                    <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z"/>
+                        <path d="M3 21c1.5-4 6-6 9-6s7.5 2 9 6"/>
+                    </g>
+                    </svg>
+
+
+                    Profile</a>
+
+                    <a href="{% url 'home' %}" class="dropdown-link"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                    <path d="M4 4h16v12H5.17L4 17.17V4zm0-2c-1.1 0-2 .9-2 2v18l4-4h14c1.1 
+                    0 2-.9 2-2V4c0-1.1-.9-2-2-2H4z"/>
+                    </svg>
+                    Chat</a>
+                    
                 <a href="{% url 'update-user' %}" class="dropdown-link"><svg version="1.1"
                         xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
                         <title>tools</title>
