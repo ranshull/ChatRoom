@@ -41,6 +41,11 @@ class CustomUserManager(BaseUserManager):
 
 #     objects = CustomUserManager() 
 class User(AbstractUser):
+    ROLE_CHOICES = [
+        ('student', 'Student'),
+        ('faculty', 'Faculty'),
+        ('student_staff', 'Student-Staff'),
+    ]
     name = models.CharField(max_length=200, null=True)
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True)
@@ -48,12 +53,15 @@ class User(AbstractUser):
     # Temp upload field (not stored permanently)
     avatar = models.ImageField(upload_to='temp/', null=True, default="avatar.svg")
 
+
     # Final Supabase URL
     avatar_url = models.URLField(
         null=True, 
         blank=True, 
         default="https://zjsarscptztnuqgtesjp.supabase.co/storage/v1/object/public/media/avatars/1_temp/avatar.svg"
     )
+
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
 
 
     # avatar_url = models.URLField(null=True, blank=True)

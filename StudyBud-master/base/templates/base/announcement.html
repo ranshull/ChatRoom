@@ -1033,8 +1033,11 @@ body {
     {% endif %}
 </div>
 
+
 <!-- Floating Add Button -->
+{% if user.role == "faculty" or user.is_superuser %}
 <button class="add-announcement-btn" onclick="openModal()">+</button>
+{% endif %}
 
 <!-- Modal for Adding New Announcement -->
 <div class="modal-overlay" id="announcementModal">

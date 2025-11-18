@@ -27,6 +27,12 @@ import fitz
 import requests
 import time
 from io import BytesIO
+from django.contrib.auth.decorators import user_passes_test
+
+
+
+def is_faculty(user):
+    return user.is_authenticated and user.role == 'faculty'
 
 # Create your views here.
 
@@ -145,6 +151,9 @@ def announcements(request):
     schools = Announcement.objects.values_list('school_name', flat=True).distinct()
 
     if request.method == "POST":
+
+       
+
         # Your existing POST handling code...
         title = request.POST.get("title")
         venue = request.POST.get("venue")
