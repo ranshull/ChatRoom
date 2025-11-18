@@ -325,7 +325,7 @@ def export_event_interests(request, ann_id):
 def loginPage(request):
     page = 'login'
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('dashboard')
 
     if request.method == 'POST':
         email = request.POST.get('email').lower()
@@ -340,7 +340,7 @@ def loginPage(request):
 
         if user is not None:
             login(request, user)
-            return redirect('home')
+            return redirect('dashboard')
         else:
             messages.error(request, 'Username OR password does not exit')
 
@@ -350,7 +350,7 @@ def loginPage(request):
 
 def logoutUser(request):
     logout(request)
-    return redirect('home')
+    return redirect('dashboard')
 
 
 
@@ -712,7 +712,7 @@ def activityPage(request):
 
 # Setup Gemini API client
 
-os.environ["API_KEY"] = "AIzaSyDuCmFicMCoCmg2DUuT5eUZhIEPz_2f03c"
+
 API_KEY = os.getenv("API_KEY")
 
 client = genai.Client(api_key=os.environ["API_KEY"])

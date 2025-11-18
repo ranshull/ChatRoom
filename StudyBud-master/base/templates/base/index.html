@@ -315,6 +315,202 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Bell Icon Container */
+.notification-bell {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* Bell Icon */
+.notification-bell .bell-icon {
+  width: 20px;
+  height: 20px;
+  color: hsl(30, 10%, 20%);
+  transition: color 0.3s ease;
+}
+
+.notification-bell:hover .bell-icon {
+  color: hsl(30, 10%, 30%);
+}
+
+/* Notification Badge */
+.notification-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  height: 20px;
+  min-width: 20px;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: hsl(0, 84.2%, 60.2%);
+  color: hsl(0, 0%, 98%);
+  font-size: 0.7em;
+  font-weight: 600;
+  border-radius: 10px;
+  line-height: 1;
+}
+
+/* Dropdown Menu */
+.notification-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: hsl(0, 0%, 100%);
+  border: 1px solid hsl(30, 10%, 88%);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.notification-bell:hover .notification-dropdown,
+.notification-dropdown:hover {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Dropdown Header */
+.dropdown-header {
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: hsl(30, 10%, 20%);
+  border-bottom: 1px solid hsl(30, 10%, 88%);
+  background-color: hsl(0, 0%, 78%);
+}
+
+/* Dropdown Items */
+.dropdown-item {
+  padding: 16px;
+  display: block;
+  text-decoration: none;
+  color: hsl(30, 10%, 20%);
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: hsl(30, 5%, 95%);
+}
+
+.dropdown-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dropdown-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.dropdown-item-title {
+  font-weight: 600;
+  color: hsl(30, 10%, 20%);
+  font-size: 0.875rem;
+}
+
+.dropdown-item-date {
+  font-size: 0.75rem;
+  color: hsl(30, 8%, 45%);
+  white-space: nowrap;
+}
+
+.dropdown-item-details {
+  font-size: 0.75rem;
+  color: hsl(30, 8%, 45%);
+}
+
+/* Divider */
+.dropdown-divider {
+  height: 1px;
+  background-color: hsl(30, 10%, 88%);
+  border: none;
+  margin: 0;
+}
+
+/* View All Link */
+.dropdown-view-all {
+  display: block;
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 0.875rem;
+  color: hsl(30, 10%, 20%);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-view-all:hover {
+  background-color: hsl(30, 5%, 95%);
+}
+
+/* Empty State */
+.dropdown-empty {
+  padding: 16px;
+  text-align: center;
+  color: hsl(30, 8%, 45%);
+  font-size: 0.875rem;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .notification-dropdown {
+    background-color: hsl(0, 0%, 100%);
+    border-color: hsl(30, 8%, 25%);
+  }
+  
+  .dropdown-header,
+  .dropdown-item-title,
+  .dropdown-view-all {
+    color: hsl(0, 100%, 5%);
+  }
+  
+  .dropdown-item:hover,
+  .dropdown-view-all:hover {
+    background-color: hsl(186, 42%, 87%);
+  }
+  
+  .dropdown-divider {
+    background-color: hsl(30, 8%, 25%);
+  }
+}
+
+/* Scrollbar Styling */
+.notification-dropdown::-webkit-scrollbar {
+  width: 8px;
+}
+
+.notification-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb {
+  background: hsl(30, 10%, 88%);
+  border-radius: 4px;
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb:hover {
+  background: hsl(30, 8%, 75%);
+}
+
+
+
+ 
     </style>
 </head>
 <body>
@@ -322,12 +518,66 @@
     <nav>
         <div class="nav-content">
             <div class="nav-logo">CONNEXTA</div>
+            
             <div class="nav-links">
                 <button class="nav-link" onclick="scrollToSection('hero')">Home</button>
                 <button class="nav-link" onclick="scrollToSection('about')">About</button>
                 <button class="nav-link" onclick="scrollToSection('contact')">Contact</button>
+
+
+                <!-- ===================================bell ICON-================================= -->
+            <!-- Bell Icon with your styling -->
+<div class="notification-bell">
+    <!-- Bell Icon -->
+    <svg class="bell-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+    </svg>
+    
+    <!-- Notification Badge -->
+    {% if upcoming_events %}
+    <span class="notification-badge">{{ upcoming_events|length }}</span>
+    {% endif %}
+    
+    <!-- Dropdown Menu -->
+    <div class="notification-dropdown">
+        <div class="dropdown-header">Upcoming Events</div>
+        
+        {% if upcoming_events %}
+            {% for event in upcoming_events %}
+                <a href="{% url 'announcements' %}?search={{ event.title|urlencode }}&school=&start_date=&end_date=" class="dropdown-item">
+                    <div class="dropdown-item-content">
+                        <div class="dropdown-item-header">
+                            <span class="dropdown-item-title">{{ event.title|truncatewords:3 }}</span>
+                            <span class="dropdown-item-date">{{ event.event_date }}</span>
+                        </div>
+                        <span class="dropdown-item-details">{{ event.venue }} • {{ event.event_time }}</span>
+                    </div>
+                </a>
+                
+                {% if not forloop.last %}
+                    <hr class="dropdown-divider">
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="dropdown-item">
+                <div class="dropdown-item-content">
+                    <span class="dropdown-item-details">No upcoming events</span>
+                </div>
+            </div>
+        {% endif %}
+        
+        <hr class="dropdown-divider">
+        
+        <a href="{% url 'announcements' %}" class="dropdown-view-all">View All Events</a>
+    </div>
+</div>
+
+            <!-- ===================================bell ICON-================================= -->
             </div>
         </div>
+
+        
     </nav>
 
     <!-- Hero Section -->
@@ -349,7 +599,7 @@
             <p class="hero-subheading">
                 
             </p>
-            <a href="{% url 'login' %}" class="cta-button">CHAT</a>
+            <a href="{% url 'home' %}" class="cta-button">CHAT</a>
             <a href="{% url 'announcements' %}" class="cta-button">EVENTS</a>
 
 
@@ -361,13 +611,13 @@
     <div class="about-container">
         <h2 class="section-title">About Connexta</h2>
         <p class="about-text">
-            Connexta is a smart university chatroom and collaboration platform designed to bring students, faculty, and clubs together in one digital space. It simplifies communication, promotes idea-sharing, and fosters an interactive learning environment within universities.
+            Connexta is a smart university platform that brings students, faculty, and clubs together in one digital space for seamless communication and collaboration.
         </p>
         <p class="about-text">
-            The platform integrates real-time chat, file sharing, and AI-powered tools like a doubt-solving assistant and flashcard generator - all crafted to make academic collaboration seamless and engaging. Connexta ensures that every user experiences the power of connected learning through intuitive design and smart automation.
+            The platform features Notes sharing chat, AI-powered learning tools, and a comprehensive event system for creating, discovering, and managing campus events like workshops, fests, and seminars.
         </p>
         <p class="about-text">
-            By combining innovation with simplicity, Connexta redefines campus connectivity, transforming the way students interact, learn, and grow in the digital era.
+            With smart event recommendations and easy participation tracking, Connexta enhances campus connectivity and makes academic collaboration more engaging.
         </p>
     </div>
 </section>
