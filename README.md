@@ -272,9 +272,9 @@ Once environment variables are set:
 | `DB_NAME`       | Database name.                                                         |
 | `DB_USER`       | PostgreSQL username.                                                   |
 | `DB_PASSWORD`   | Database password.                                                     |
-| `DB_PORT`       | Database port (e.g., `5432`).                                          |
+| `DB_PORT`       | Database port .                                          |
 | `DB_URL`        | Full PostgreSQL connection URL (optional).                             |
-| `DB_POOL_MODE`  | Connection pooling mode (e.g., `session`).                             |
+| `DB_POOL_MODE`  | Connection pooling mode .                             |
 | `SUPABASE_URL`  | Base URL of Supabase project.                                          |
 | `SUPABASE_KEY`  | Supabase API/service key.                                              |
 | `SUPABASE_BUCKET` | Storage bucket name (e.g., `media`).                                |
