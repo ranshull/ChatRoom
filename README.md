@@ -16,7 +16,7 @@ This project was built as a final-year submission and includes complete document
 - [Environment Variables](#-environment-variables-descriptions-only)
 - [Security Measures](#-security-measures)
 - [License](#-license)
-- [Final-Year Submission Notes](#-final-year-submission-notes)
+
 
 ---
 
