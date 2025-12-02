@@ -1,6 +1,3 @@
-# CONNEXTA
-
-```markdown
 # **Connexta – AI-Powered University Collaboration & Chat Platform**
 
 Connexta is a Django-based real-time academic collaboration platform designed to bring structured digital communication to universities. It replaces unorganized WhatsApp/Telegram groups with subject-wise rooms, centralized announcements, file sharing, and AI-powered learning assistance. The system integrates the Google Gemini API to provide doubt-solving, OCR document understanding, and automatic flashcard generation.
