@@ -156,6 +156,8 @@ DB_POOL_MODE=
 SUPABASE_URL=
 SUPABASE_KEY=
 SUPABASE_BUCKET=
+SECRET_KEY=
+DEBUG=
 ```
 
 > ⚠️ Do **NOT** commit `.env` to GitHub.
@@ -218,6 +220,8 @@ DB_POOL_MODE=
 SUPABASE_URL=
 SUPABASE_KEY=
 SUPABASE_BUCKET=
+SECRET_KEY=
+DEBUG=False
 ```
 
 ### **5️⃣ Database Setup**
@@ -278,6 +282,8 @@ Once environment variables are set:
 | `SUPABASE_URL`  | Base URL of Supabase project.                                          |
 | `SUPABASE_KEY`  | Supabase API/service key.                                              |
 | `SUPABASE_BUCKET` | Storage bucket name (e.g., `media`).                                |
+| `SECRET_KEY `   |django secret key
+| `DEBUG`         |False
 
 > ⚠️ Never commit environment variable values.
 
